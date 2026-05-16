@@ -1,0 +1,9 @@
+#Prepare database access
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from config import DATABASE_URL
+
+engine = create_engine(DATABASE_URL) #connection layer between python app and PostgreSQL
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
