@@ -13,9 +13,9 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Advent Star | Uniform Supply for Schools and Businesses",
+  title: "Advent Star | Uniform Supplier for Schools and Businesses in Singapore",
   description:
-    "Advent Star provides reliable uniform supply, structured quotations, and dependable delivery for schools, teams, and businesses.",
+    "Advent Star provides reliable uniform supply, structured quotations, and dependable delivery for schools, teams, and businesses in Singapore.",
 };
 
 export default function RootLayout({
