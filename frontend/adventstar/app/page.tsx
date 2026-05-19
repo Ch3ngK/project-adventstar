@@ -1,8 +1,8 @@
 export default function Home() {
   const trustPoints = [
-    "Clear quotations with faster turnaround for repeat and new customers",
-    "Support for schoolwear, PE attire, corporate uniforms, and custom orders",
-    "A structured workflow from enquiry to production and delivery",
+    "Clear quotations with faster turnaround for schools, teams, and repeat customers",
+    "Support for school uniforms, PE attire, corporate wear, and event apparel",
+    "A structured workflow that helps owners keep track from enquiry to delivery",
   ];
 
   const productCategories = [
@@ -41,8 +41,8 @@ export default function Home() {
 
   const sampleClients = [
     "Schools",
-    "Student organisations",
-    "Corporate teams",
+    "CCAs and student groups",
+    "SMEs",
     "Training providers",
     "Event organisers",
   ];
@@ -60,12 +60,12 @@ export default function Home() {
 
           <div className="space-y-5">
             <h1 className="max-w-4xl font-serif text-5xl leading-tight font-semibold text-slate-950 sm:text-6xl">
-              Reliable uniform supply for schools, teams, and businesses.
+              Reliable uniform supply for schools, teams, and businesses in Singapore.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
-              Advent Star helps organisations move from enquiry to quotation and
-              delivery with less back-and-forth, clearer coordination, and a
-              more dependable buying experience.
+              Advent Star helps schools, SMEs, and organisations move from
+              enquiry to quotation and delivery with less back-and-forth,
+              clearer coordination, and a more dependable buying experience.
             </p>
           </div>
 
@@ -88,7 +88,7 @@ export default function Home() {
             <div className="rounded-3xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
               <p className="text-3xl font-bold text-amber-700">Fast</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Structured enquiries help shorten quote turnaround time.
+                Structured enquiries help shorten quote turnaround time for busy buyers.
               </p>
             </div>
             <div className="rounded-3xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
@@ -100,7 +100,7 @@ export default function Home() {
             <div className="rounded-3xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
               <p className="text-3xl font-bold text-amber-700">Reliable</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Built for real repeat business, operational follow-up, and delivery.
+                Built for repeat business, operational follow-up, and dependable local delivery.
               </p>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function Home() {
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="text-sm text-amber-200">New enquiry received</p>
                 <p className="mt-1 text-base font-medium">
-                  120 PE uniforms requested for an August delivery.
+                  120 PE uniforms requested for a new school term.
                 </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -178,9 +178,9 @@ export default function Home() {
               follow-through.
             </h2>
             <p className="max-w-xl text-lg leading-8 text-slate-700">
-              From schoolwear essentials to branded team apparel, Advent Star is
-              built around practical supply needs and repeat operational
-              follow-up.
+              From schoolwear essentials to branded team apparel, Advent Star
+              is built around practical supply needs, repeat operational
+              follow-up, and the realities of local procurement.
             </p>
           </div>
 
@@ -197,8 +197,9 @@ export default function Home() {
                   {category}
                 </h3>
                 <p className="mt-3 text-base leading-7 text-slate-600">
-                  Designed for organisations that need clearer communication and
-                  a smoother path from enquiry to fulfilment.
+                  Designed for organisations that need clearer communication,
+                  practical lead times, and a smoother path from enquiry to
+                  fulfilment.
                 </p>
               </div>
             ))}
@@ -252,7 +253,8 @@ export default function Home() {
             </h2>
             <p className="text-base leading-8 text-slate-300">
               Replace these placeholders with real customer names or logos once
-              you have approval to publish them.
+              you have approval to publish them. For Singapore buyers, familiar
+              names build trust quickly.
             </p>
           </div>
 
@@ -279,8 +281,8 @@ export default function Home() {
               Start with a structured request and move faster to quotation.
             </h2>
             <p className="text-base leading-8 text-amber-50/90">
-              Tell us what you need and we&apos;ll follow up with the details
-              required to prepare a practical quotation.
+              Tell us what you need and we&apos;ll follow up with the quantities,
+              timeline, and details required to prepare a practical quotation.
             </p>
           </div>
 
