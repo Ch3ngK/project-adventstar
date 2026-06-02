@@ -1,16 +1,15 @@
-#Prepare database access
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from config import DATABASE_URL
+from app.core.config import settings
 
-engine = create_engine(DATABASE_URL) #connection layer between python app and PostgreSQL
+engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db():
     db = SessionLocal()
-    try: 
+    try:
         yield db
-    finally: 
+    finally:
         db.close()

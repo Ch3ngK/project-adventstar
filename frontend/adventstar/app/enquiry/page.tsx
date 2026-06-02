@@ -51,13 +51,16 @@ export default function EnquiryPage() {
             }); 
         
         if (!response.ok) { //Checks if the backend accepted it 
-            throw new Error("Failed to submit enquiry"); 
+            const errorText = await response.text();
+            throw new Error(errorText || "Failed to submit enquiry"); 
         }    
         
         setSuccessMessage("Your enquiry has been submitted successfully."); 
         setFormData(initialFormData); 
         } catch (error) {
-            setErrorMessage("Something went wrong. Please try again");
+            const message =
+              error instanceof Error ? error.message : "Something went wrong. Please try again";
+            setErrorMessage(message);
         } finally {
             setIsSubmitting(false); 
         }
