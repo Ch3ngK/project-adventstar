@@ -1,3 +1,5 @@
+import HomeSidebar from "./components/home-sidebar";
+
 export default function Home() {
   const trustPoints = [
     "Clear quotations with faster turnaround for schools, teams, and repeat customers",
@@ -52,6 +54,8 @@ export default function Home() {
       id="top"
       className="overflow-x-hidden bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.18),_transparent_26%),linear-gradient(180deg,_#fffaf0_0%,_#f8f3e8_55%,_#efe2cc_100%)] text-slate-900"
     >
+      <HomeSidebar />
+
       <section className="mx-auto grid min-h-screen max-w-7xl items-center gap-14 px-6 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:px-10">
         <div className="space-y-8">
           <span className="inline-flex rounded-full border border-amber-300/80 bg-amber-100/80 px-4 py-2 text-sm font-semibold tracking-[0.18em] text-amber-900 uppercase">

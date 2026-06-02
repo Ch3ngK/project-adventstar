@@ -18,19 +18,21 @@ const statusOptions = ["new", "contacted", "quoted", "closed"];
 export default function AdminEnquiriesPage() {
     const [enquiries, setEnquiries] = useState<Enquiry[]>([]); 
     const [errorMessage, setErrorMessage] = useState("");
+    const [deletingEnquiryId, setDeletingEnquiryId] = useState<number | null>(null);
 
     useEffect(() => {
         async function loadEnquiries() {
             try {
                 const response = await fetch("http://127.0.0.1:8000/enquiries");
-            if (!response.ok) {
-                throw new Error("Failed to fetch enquiries."); 
-            }
-            
-            const data = await response.json(); 
-            setEnquiries(data); 
-            } catch (error) {
-            setErrorMessage("Unable to load enquiries."); 
+                if (!response.ok) {
+                    throw new Error("Failed to fetch enquiries."); 
+                }
+
+                const data = await response.json(); 
+                setEnquiries(data);
+                setErrorMessage("");
+            } catch {
+                setErrorMessage("Unable to load enquiries."); 
             }  
         }
         
@@ -39,6 +41,7 @@ export default function AdminEnquiriesPage() {
 
     async function handleStatusChange(enquiryId: number, newStatus: string) {
         try {
+            setErrorMessage("");
             const response = await fetch(`http://127.0.0.1:8000/enquiries/${enquiryId}/status`,
                 {
                     method: "PATCH",
@@ -60,8 +63,39 @@ export default function AdminEnquiriesPage() {
                     enquiry.id === enquiryId ? updatedEnquiry : enquiry
                 )
             );
-        } catch (error) {
+        } catch {
             setErrorMessage("Unable to update enquiry status.");
+        }
+    }
+
+    async function handleDeleteEnquiry(enquiryId: number) {
+        const confirmed = window.confirm(
+            "Delete this enquiry? This action cannot be undone."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setDeletingEnquiryId(enquiryId);
+            setErrorMessage("");
+
+            const response = await fetch(`http://127.0.0.1:8000/enquiries/${enquiryId}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete enquiry.");
+            }
+
+            setEnquiries((currentEnquiries) =>
+                currentEnquiries.filter((enquiry) => enquiry.id !== enquiryId)
+            );
+        } catch {
+            setErrorMessage("Unable to delete enquiry.");
+        } finally {
+            setDeletingEnquiryId(null);
         }
     }
 
@@ -102,27 +136,38 @@ export default function AdminEnquiriesPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`status-${enquiry.id}`}
-                    className="text-xs font-semibold tracking-[0.12em] text-slate-500 uppercase"
+                <div className="flex flex-col gap-3 sm:items-end">
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor={`status-${enquiry.id}`}
+                      className="text-xs font-semibold tracking-[0.12em] text-slate-500 uppercase"
+                    >
+                      Status
+                    </label>
+                    <select
+                      id={`status-${enquiry.id}`}
+                      value={enquiry.status}
+                      onChange={(event) =>
+                        handleStatusChange(enquiry.id, event.target.value)
+                      }
+                      className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800"
+                    >
+                      {statusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteEnquiry(enquiry.id)}
+                    disabled={deletingEnquiryId === enquiry.id}
+                    className="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Status
-                  </label>
-                  <select
-                    id={`status-${enquiry.id}`}
-                    value={enquiry.status}
-                    onChange={(event) =>
-                      handleStatusChange(enquiry.id, event.target.value)
-                    }
-                    className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800"
-                  >
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
+                    {deletingEnquiryId === enquiry.id ? "Deleting..." : "Delete"}
+                  </button>
                 </div>
               </div>
 
