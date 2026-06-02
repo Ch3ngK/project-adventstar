@@ -22,3 +22,8 @@ class EnquiryResponse(BaseModel): #Response schema: describes what API sends bac
     status: str
     created_at: datetime
 
+class EnquiryStatusUpdate(BaseModel): 
+    status: str
+
+
+

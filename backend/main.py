@@ -1,15 +1,26 @@
 #Webapp entry point
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from models import Base, Enquiry
 from database import engine, get_db
-from schemas import EnquiryCreate, EnquiryResponse
+from schemas import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate
 
 Base.metadata.create_all(bind=engine) #Creates all missing database tables defined by my SQLAlchemy models in PostgreSQL
 
 app = FastAPI()
+
+#CORS is a browser security rule that controls which websites are allowed to make requests to backend
+#Create CORS middleware to allow localhost (origin)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")        #route decorator
 def read_root():
@@ -48,5 +59,22 @@ def get_enquiry(enquiry_id: int, db: Session = Depends(get_db)):
 
     if enquiry is None:
         raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    return enquiry
+
+@app.patch("/enquiries/{enquiry_id}/status", response_model=EnquiryResponse)
+def update_enquiry_status(
+    enquiry_id: int,
+    status_update: EnquiryStatusUpdate, 
+    db: Session = Depends(get_db),
+):
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+
+    if enquiry is None: 
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    enquiry.status = status_update.status
+    db.commit()
+    db.refresh(enquiry) 
 
     return enquiry
