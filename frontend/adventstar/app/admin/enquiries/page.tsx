@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type Enquiry = {
     id: number; 
     customer_name: string;
+    customer_id: number | null;
     company_name: string | null;
     email: string;
     phone: string | null; 
@@ -175,6 +176,7 @@ export default function AdminEnquiriesPage() {
                 <p>Email: {enquiry.email}</p>
                 <p>Phone: {enquiry.phone || "Not provided"}</p>
                 <p>Submitted: {new Date(enquiry.created_at).toLocaleString()}</p>
+                <p>Customer ID: {enquiry.customer_id ?? "Not created yet"}</p>
               </div>
 
               <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-7 text-slate-700">

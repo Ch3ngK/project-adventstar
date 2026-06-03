@@ -118,6 +118,7 @@ export default function EnquiryPage() {
                 type="text"
                 value={formData.company_name}
                 onChange={handleChange}
+                required
                 className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-amber-500"
               />
             </div>
