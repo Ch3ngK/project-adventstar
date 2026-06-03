@@ -12,15 +12,43 @@ router = APIRouter(prefix="/enquiries", tags=["enquiries"])
 def create_enquiry(
     enquiry: EnquiryCreate, db: Session = Depends(get_db)
 ) -> Enquiry:
-    if enquiry.customer_id is not None:
+    resolved_customer_id = enquiry.customer_id
+
+    if resolved_customer_id is not None:
         customer = (
             db.query(Customer)
-            .filer(Customer.id == enquiry.customer_id)
+            .filter(Customer.id == resolved_customer_id)
             .first()
         )
 
         if customer is None: 
-            raise HTTPException(status_code=404, detail="Customer not found.")
+            raise HTTPException(status_code=404, detail="Customer not found.") # Check if there is an existing customer ID for the same customer
+    else:
+        customer = (    # Else check if the customer's email is already registered.
+            db.query(Customer)
+            .filter(Customer.email == enquiry.email)
+            .first()
+        )
+
+        if customer is None: 
+            if not enquiry.company_name:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Company / School is required when creating a new customer.",
+                )
+            
+            customer = Customer(
+                name=enquiry.customer_name,
+                company_name=enquiry.company_name,
+                email=enquiry.email,
+                phone=enquiry.phone,
+            )
+
+            db.add(customer)
+            db.commit()
+            db.refresh(customer)
+
+        resolved_customer_id = customer.id
 
     new_enquiry = Enquiry(
         customer_name=enquiry.customer_name,
@@ -28,7 +56,7 @@ def create_enquiry(
         email=enquiry.email,
         phone=enquiry.phone,
         message=enquiry.message,
-        customer_id=enquiry.customer_id,
+        customer_id=resolved_customer_id,
     )
 
     db.add(new_enquiry)
