@@ -1,6 +1,12 @@
-import HomeSidebar from "./components/home-sidebar";
+import Link from "next/link";
 
 export default function Home() {
+  const navigationLinks = [
+    { label: "Why Advent Star", href: "#why-adventstar" },
+    { label: "What We Supply", href: "#what-we-supply" },
+    { label: "How It Works", href: "#process" },
+  ];
+
   const trustPoints = [
     "Clear quotations with faster turnaround for schools, teams, and repeat customers",
     "Support for school uniforms, PE attire, corporate wear, and event apparel",
@@ -54,9 +60,59 @@ export default function Home() {
       id="top"
       className="overflow-x-hidden bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.18),_transparent_26%),linear-gradient(180deg,_#fffaf0_0%,_#f8f3e8_55%,_#efe2cc_100%)] text-slate-900"
     >
-      <HomeSidebar />
+      <header className="sticky top-0 z-50 border-b border-white/60 bg-[#fff8ef]/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 lg:px-10">
+          <a href="#top" className="min-w-0">
+            <p className="text-xs font-semibold tracking-[0.22em] text-amber-700 uppercase">
+              Advent Star
+            </p>
+            <p className="mt-1 truncate text-sm text-slate-600">
+              Uniform supply for schools, teams, and businesses
+            </p>
+          </a>
 
-      <section className="mx-auto grid min-h-screen max-w-7xl items-center gap-14 px-6 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:px-10">
+          <nav className="hidden items-center gap-2 md:flex">
+            {navigationLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="rounded-full px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white/80"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex shrink-0 items-center gap-3">
+            <Link
+              href="/admin/enquiries"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm"
+            >
+              Admin
+            </Link>
+            <Link
+              href="/enquiry"
+              className="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold tracking-wide text-white shadow-lg shadow-slate-950/20"
+            >
+              Request a Quote
+            </Link>
+          </div>
+        </div>
+
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-6 pb-4 md:hidden lg:px-10">
+          {navigationLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="shrink-0 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </header>
+
+      <section className="mx-auto grid min-h-screen max-w-7xl items-center gap-14 px-6 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:px-10">
         <div className="space-y-8">
           <span className="inline-flex rounded-full border border-amber-300/80 bg-amber-100/80 px-4 py-2 text-sm font-semibold tracking-[0.18em] text-amber-900 uppercase">
             Uniform Supply, Simplified
@@ -74,12 +130,12 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <a
-              href="#enquiry"
+            <Link
+              href="/enquiry"
               className="inline-flex items-center justify-center rounded-full bg-slate-950 px-7 py-4 text-sm font-semibold tracking-wide text-white shadow-lg shadow-slate-950/20"
             >
               Request a Quote
-            </a>
+            </Link>
             <a
               href="#process"
               className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white/80 px-7 py-4 text-sm font-semibold tracking-wide text-slate-900 shadow-sm"
@@ -88,23 +144,23 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-3xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
-              <p className="text-3xl font-bold text-amber-700">Fast</p>
+              <p className="text-3xl font-bold text-amber-700">Briefs</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Structured enquiries help shorten quote turnaround time for busy buyers.
+                Buyers know what to submit, which reduces missing details and avoids extra follow-up.
               </p>
             </div>
             <div className="rounded-3xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
-              <p className="text-3xl font-bold text-amber-700">Clear</p>
+              <p className="text-3xl font-bold text-amber-700">Quotes</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Better visibility from customer request to production progress.
+                Quotations can be prepared around quantities, timelines, and branding needs faster.
               </p>
             </div>
             <div className="rounded-3xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur">
-              <p className="text-3xl font-bold text-amber-700">Reliable</p>
+              <p className="text-3xl font-bold text-amber-700">Follow-Up</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Built for repeat business, operational follow-up, and dependable local delivery.
+                A cleaner handoff helps teams stay coordinated from first enquiry to delivery.
               </p>
             </div>
           </div>
@@ -152,7 +208,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-8 lg:px-10">
+      <section
+        id="why-adventstar"
+        className="mx-auto max-w-7xl px-6 pb-8 lg:px-10"
+      >
         <div className="rounded-[2rem] border border-white/70 bg-white/75 p-8 shadow-sm backdrop-blur">
           <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
             Why Advent Star
@@ -171,7 +230,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
+      <section
+        id="what-we-supply"
+        className="mx-auto max-w-7xl px-6 py-20 lg:px-10"
+      >
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-4">
             <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
@@ -291,12 +353,19 @@ export default function Home() {
           </div>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row lg:mt-0">
-            <a
+            <Link
+              href="/admin/enquiries"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-900"
+            >
+              Admin
+            </Link>
+            
+            <Link
               href="/enquiry"
               className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-sm font-semibold tracking-wide text-amber-900 shadow-lg"
             >
               Go to Enquiry Form
-            </a>
+            </Link>
             <a
               href="#top"
               className="inline-flex items-center justify-center rounded-full border border-white/50 px-7 py-4 text-sm font-semibold tracking-wide text-white"
