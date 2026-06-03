@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -69,3 +69,16 @@ def update_enquiry_status(
     db.refresh(enquiry)
 
     return enquiry
+
+
+@router.delete("/{enquiry_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_enquiry(enquiry_id: int, db: Session = Depends(get_db)) -> Response:
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+
+    if enquiry is None:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    db.delete(enquiry)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
