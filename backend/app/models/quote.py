@@ -8,7 +8,7 @@ class Quote(Base):
     __tablename__ = "quotes"
 
     id = Column(Integer, primary_key=True, index=True)
-    customer_id = Column(Integer, ForeignKey("customer.id"), nullable=False) # ForeignKey: Used to connect one table to another (in this case, this column must point to a valid row in customers table)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False) # ForeignKey: Used to connect one table to another (in this case, this column must point to a valid row in customers table)
     enquiry_id = Column(Integer, ForeignKey("enquiries.id"), nullable=False)
     status = Column(Integer, default="draft", nullable=False)
     total_amount = Column(Numeric(10,2), nullable=False)
