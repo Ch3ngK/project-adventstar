@@ -46,7 +46,7 @@ export default function AdminEnquiriesPage() {
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
     const [updatingEnquiryId, setUpdatingEnquiryId] = useState<number | null>(null);
     const [deletingEnquiryId, setDeletingEnquiryId] = useState<number | null>(null);
-    const deferredSearchTerm = useDeferredValue(searchTerm);
+    const deferredSearchTerm = useDeferredValue(searchTerm); //Delayed version of searchTerm for better UI performance
 
     useEffect(() => {
         async function loadEnquiries() {
@@ -132,7 +132,47 @@ export default function AdminEnquiriesPage() {
         }
     }
 
-    const normalizedSearchTerm = deferredSearchTerm.trim().toLowerCase();
+    async function handleCreateQuote(enquiry: Enquiry) {
+      if (!enquiry.customer_id) {
+        setErrorMessage("This enquiry is not linked to a customer.")
+        return; 
+      }
+
+      const totalAmount = window.prompt("Enter quote amount.");
+
+      if (!totalAmount) {
+        return; 
+      }
+
+      const notes = window.prompt("Enter quote notes, if any:") || null; 
+
+      try {
+        setErrorMessage("");
+      
+        const response = await fetch("http://127.0.0.1:8000/quotes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customer_id: enquiry.customer_id,
+            enquiry_id: enquiry.id, 
+            total_amount: totalAmount, 
+            notes, 
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create quote");
+        }
+
+        await handleStatusChange(enquiry.id, "quoted");
+      } catch {
+        setErrorMessage("Unable to create quote.");
+      }
+    }
+
+    const normalizedSearchTerm = deferredSearchTerm.trim().toLowerCase(); // Prepares search text so matching is easier
 
     const visibleEnquiries = enquiries
         .filter((enquiry) => {
@@ -406,6 +446,13 @@ export default function AdminEnquiriesPage() {
                         className="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {deletingEnquiryId === enquiry.id ? "Deleting..." : "Delete"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleCreateQuote(enquiry)}
+                        className="inline-flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800"
+                        >
+                          Create Quote
                       </button>
                     </div>
                   </div>
