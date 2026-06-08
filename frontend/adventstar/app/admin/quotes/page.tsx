@@ -66,6 +66,32 @@ export default function QuotesPage() {
         }
     }
 
+    async function handleDeleteQuote(quoteId: number) {
+        const confirmed = window.confirm("Delete this quote? This action cannot be undone.");
+        
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setErrorMessage(""); 
+
+            const response = await fetch (`http://127.0.0.1:8000/quotes/${quoteId}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete quote");
+            }
+
+            setQuotes((currentQuotes) => 
+                currentQuotes.filter((quote) => quote.id !== quoteId)
+            );
+        } catch {
+            setErrorMessage("Unable to delete quote.");
+        }
+    }
+
     return (
         <main className="min-h-screen bg-slate-100 px-6 py-12 text-slate-900">
             <div className="mx-auto max-w-6xl">
@@ -120,6 +146,13 @@ export default function QuotesPage() {
                                 <p>Total Amount: SGD {quote.total_amount}</p>
                                 <p>Created: {new Date(quote.created_at).toLocaleString()}</p>
                             </div>
+
+                            <button
+                                type="button"
+                                onClick={() => handleDeleteQuote(quote.id)}
+                                >
+                                Delete
+                            </button>
 
                             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-7 text-slate-700">
                                 {quote.notes || "No notes provided."}
