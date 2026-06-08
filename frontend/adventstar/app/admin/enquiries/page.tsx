@@ -46,6 +46,10 @@ export default function AdminEnquiriesPage() {
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
     const [updatingEnquiryId, setUpdatingEnquiryId] = useState<number | null>(null);
     const [deletingEnquiryId, setDeletingEnquiryId] = useState<number | null>(null);
+    const [quoteFormEnquiry, setQuoteFormEnquiry] = useState<Enquiry | null>(null);
+    const [quoteAmount, setQuoteAmount] = useState("");
+    const [quoteNotes, setQuoteNotes] = useState("");
+    const [isCreatingQuote, setIsCreatingQuote] = useState(false);
     const deferredSearchTerm = useDeferredValue(searchTerm); //Delayed version of searchTerm for better UI performance
 
     useEffect(() => {
@@ -132,44 +136,58 @@ export default function AdminEnquiriesPage() {
         }
     }
 
-    async function handleCreateQuote(enquiry: Enquiry) {
-      if (!enquiry.customer_id) {
-        setErrorMessage("This enquiry is not linked to a customer.")
-        return; 
-      }
-
-      const totalAmount = window.prompt("Enter quote amount.");
-
-      if (!totalAmount) {
-        return; 
-      }
-
-      const notes = window.prompt("Enter quote notes, if any:") || null; 
-
-      try {
-        setErrorMessage("");
-      
-        const response = await fetch("http://127.0.0.1:8000/quotes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            customer_id: enquiry.customer_id,
-            enquiry_id: enquiry.id, 
-            total_amount: totalAmount, 
-            notes, 
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to create quote");
+    function handleCreateQuote(enquiry: Enquiry) {
+        if (!enquiry.customer_id) {
+            setErrorMessage("This enquiry is not linked to a customer.");
+            return;
         }
 
-        await handleStatusChange(enquiry.id, "quoted");
-      } catch {
-        setErrorMessage("Unable to create quote.");
-      }
+        setErrorMessage("");
+        setQuoteFormEnquiry(enquiry);
+        setQuoteAmount("");
+        setQuoteNotes("");
+    }
+
+    async function handleSubmitQuote() {
+        if (!quoteFormEnquiry) {
+            return;
+        }
+
+        if (!quoteAmount.trim()) {
+            setErrorMessage("Please enter a quote amount.");
+            return;
+        }
+
+        try {
+            setIsCreatingQuote(true); 
+            setErrorMessage(""); 
+
+            const response = await fetch("http://127.0.0.1:8000/quotes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    customer_id: quoteFormEnquiry.customer_id,
+                    enquiry_id: quoteFormEnquiry.id,
+                    total_amount: quoteAmount,
+                    notes: quoteNotes || null,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create quote"); 
+            }
+
+            await handleStatusChange(quoteFormEnquiry.id, "quoted");
+            setQuoteFormEnquiry(null); 
+            setQuoteAmount("");
+            setQuoteNotes("");
+        } catch {
+            setErrorMessage("Unable to create quote.");
+        } finally {
+            setIsCreatingQuote(false);
+        }
     }
 
     const normalizedSearchTerm = deferredSearchTerm.trim().toLowerCase(); // Prepares search text so matching is easier
@@ -471,6 +489,65 @@ export default function AdminEnquiriesPage() {
           )}
         </section>
       </div>
+      {quoteFormEnquiry ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-xl">
+            <h2 className="text-2xl font-semibold text-slate-950">
+              Create Quote
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              For {quoteFormEnquiry.customer_name}
+            </p>
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Total Amount
+                </label>
+                <input
+                  type="text"
+                  value={quoteAmount}
+                  onChange={(event) => setQuoteAmount(event.target.value)}
+                  className="w-full rounded-2xl border border-slate-300 px-4 py-3"
+                  placeholder="e.g. 1200.00"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Notes
+                </label>
+                <textarea
+                  value={quoteNotes}
+                  onChange={(event) => setQuoteNotes(event.target.value)}
+                  className="w-full rounded-2xl border border-slate-300 px-4 py-3"
+                  rows={4}
+                  placeholder="Add any pricing or delivery notes"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={handleSubmitQuote}
+                disabled={isCreatingQuote}
+                className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+              >
+                {isCreatingQuote ? "Creating..." : "Create Quote"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setQuoteFormEnquiry(null)}
+                className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
