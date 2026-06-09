@@ -4,6 +4,8 @@ from sqlalchemy import text
 
 from app.api.routes.customers import router as customers_router
 from app.api.routes.enquiries import router as enquiries_router
+from app.api.routes.quotes import router as quotes_router
+from app.api.routes.orders import router as orders_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
@@ -35,6 +37,8 @@ def create_application() -> FastAPI:
 
     app.include_router(customers_router)
     app.include_router(enquiries_router)
+    app.include_router(quotes_router)
+    app.include_router(orders_router)
 
     return app
 

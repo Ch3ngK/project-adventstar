@@ -7,7 +7,12 @@ class QuoteCreate(BaseModel):
     customer_id: int
     enquiry_id: int
     total_amount: Decimal
-    notes: Str | None = None
+    notes: str | None = None
+
+
+class QuoteStatusUpdate(BaseModel):
+    status: str
+
 
 class QuoteResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True) # For extracting the attributes from the Python Object

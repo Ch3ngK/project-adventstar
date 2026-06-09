@@ -1,6 +1,85 @@
 import Image from "next/image";
 import Link from "next/link";
 
+function ArrowRightIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-4 w-4 fill-none stroke-current"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 21s6-4.35 6-10a6 6 0 1 0-12 0c0 5.65 6 10 6 10Z" />
+      <circle cx="12" cy="11" r="2.5" />
+    </svg>
+  );
+}
+
+function BadgeIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3l2.1 2.1 3-.44.44 3L20 10l-2.46 2.34-.44 3-3-.44L12 17l-2.1-2.1-3 .44-.44-3L4 10l2.46-2.34.44-3 3 .44L12 3Z" />
+      <path d="m9.5 10.5 1.5 1.5 3.5-3.5" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 16.42v2.83a1.75 1.75 0 0 1-1.91 1.74A17.52 17.52 0 0 1 3.01 4.91 1.75 1.75 0 0 1 4.75 3h2.83a1.75 1.75 0 0 1 1.75 1.5l.33 2.63a1.75 1.75 0 0 1-.5 1.5l-1.2 1.2a14 14 0 0 0 6.2 6.2l1.2-1.2a1.75 1.75 0 0 1 1.5-.5l2.63.33A1.75 1.75 0 0 1 21 16.42Z" />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" />
+      <path d="m5 7 7 5 7-5" />
+    </svg>
+  );
+}
+
 const workingPrinciples = [
   {
     label: "01",
@@ -35,9 +114,10 @@ const processCards = [
     title: "People Behind It",
     description:
       "Our team manages preparation, coordination, and quality checks so customers get clearer communication throughout the process.",
-    imageSrc: "/operator2.png",
+    imageSrc: "/operator1.jpg",
     imageAlt: "Team members working on uniforms",
     spanClass: "",
+    imageClassName: "object-[78%_22%] scale-[1.18]",
   },
   {
     title: "Detail and Finishing",
@@ -49,9 +129,51 @@ const processCards = [
   },
 ];
 
+const footerLinks = [
+    { label: "Home", href: "#top" },
+    { label: "Why Advent Star", href: "#why-adventstar" },
+    { label: "What We Supply", href: "#what-we-supply" },
+    { label: "Request a Quote", href: "#enquiry" },
+  ];
+
+const footerCategories = [
+  "Preschools",
+  "Primary Schools",
+  "International Schools",
+  "MOE Schools",
+  "Corporate Offices",
+  "Institutions",
+];
+
+const contactDetails = [
+  {
+    label: "Address",
+    value: "10 Anson Road #10-11 International Plaza, Singapore 079903",
+    icon: MapPinIcon,
+  },
+  {
+    label: "GST Registration",
+    value: "GST Reg No 201510303R",
+    icon: BadgeIcon,
+  },
+  {
+    label: "Phone",
+    value: "+65 9766 8748",
+    icon: PhoneIcon,
+  },
+  {
+    label: "Email",
+    value: "sales@advent-star.com",
+    icon: MailIcon,
+  },
+];
+
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.18),_transparent_26%),linear-gradient(180deg,_#fffaf0_0%,_#f8f3e8_55%,_#efe2cc_100%)] text-slate-900">
+    <main
+      id="top"
+      className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.18),_transparent_26%),linear-gradient(180deg,_#fffaf0_0%,_#f8f3e8_55%,_#efe2cc_100%)] text-slate-900"
+    >
       <header className="sticky top-0 z-50 border-b border-white/60 bg-[#fff8ef]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 lg:px-10">
           <Link href="/" className="flex min-w-0 items-center">
@@ -154,7 +276,7 @@ export default function AboutPage() {
                   src={card.imageSrc}
                   alt={card.imageAlt}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${card.imageClassName ?? ""}`}
                 />
               </div>
               <div className="p-6">
@@ -234,6 +356,92 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <footer className="border-t border-amber-200/80 bg-[linear-gradient(180deg,_rgba(255,248,239,0.96)_0%,_rgba(248,243,232,0.98)_100%)]">
+              <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
+                <div className="grid gap-10 border-b border-slate-200/80 pb-10 md:grid-cols-2 xl:grid-cols-4">
+                  <div className="space-y-4">
+                    <Image
+                      src="/adventstar-logo.png"
+                      alt="Advent Star Uniform Supplier logo"
+                      width={1057}
+                      height={719}
+                      className="h-auto w-[13rem]"
+                      priority
+                    />
+                  </div>
+      
+                  <div>
+                    <h3 className="font-serif text-2xl font-semibold text-slate-950">
+                      Quick Links
+                    </h3>
+                    <ul className="mt-5 space-y-3 text-sm text-slate-600">
+                      {footerLinks.map((link) => (
+                        <li key={link.href}>
+                          <Link
+                            href={link.href}
+                            className="inline-flex items-center gap-2 transition-colors hover:text-amber-700"
+                          >
+                            <ArrowRightIcon />
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+      
+                  <div>
+                    <h3 className="font-serif text-2xl font-semibold text-slate-950">
+                      Categories
+                    </h3>
+                    <ul className="mt-5 space-y-3 text-sm text-slate-600">
+                      {footerCategories.map((category) => (
+                        <li key={category}>
+                           <Link
+                            href="/#what-we-supply"
+                            className="inline-flex items-center gap-2 transition-colors hover:text-amber-700"
+                          >
+                          <ArrowRightIcon />
+                          {category}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+      
+                  <div>
+                    <h3 className="font-serif text-2xl font-semibold text-slate-950">
+                      Contact
+                    </h3>
+                    <ul className="mt-5 space-y-3 text-sm leading-7 text-slate-600">
+                      {contactDetails.map((detail) => {
+                        const Icon = detail.icon;
+      
+                        return (
+                          <li key={detail.label} className="flex items-start gap-3">
+                            <span className="mt-0.5 text-amber-700">
+                              <Icon />
+                            </span>
+                            <span>{detail.value}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+      
+                <div className="flex flex-col gap-4 pt-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+                  <p>&copy; 2026 Advent Star Uniforms. All rights reserved.</p>
+                  <div className="flex flex-wrap gap-6">
+                    <a href="#" className="transition-colors hover:text-amber-700">
+                      Privacy Policy
+                    </a>
+                    <a href="#" className="transition-colors hover:text-amber-700">
+                      Terms of Service
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </footer>
     </main>
   );
 }
