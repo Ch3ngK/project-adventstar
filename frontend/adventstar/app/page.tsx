@@ -113,6 +113,7 @@ export default function Home() {
     { label: "Why Advent Star", href: "#why-adventstar" },
     { label: "What We Supply", href: "#what-we-supply" },
     { label: "How It Works", href: "#process" },
+    { label: "About us", href: "about"},
   ];
 
   const trustPoints = [
