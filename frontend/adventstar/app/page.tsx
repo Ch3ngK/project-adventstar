@@ -113,7 +113,7 @@ export default function Home() {
     { label: "Why Advent Star", href: "#why-adventstar" },
     { label: "What We Supply", href: "#what-we-supply" },
     { label: "How It Works", href: "#process" },
-    { label: "About us", href: "about"},
+    { label: "About us", href: "/about" },
   ];
 
   const trustPoints = [
@@ -124,24 +124,52 @@ export default function Home() {
 
   const productCategories = [
     {
-      name: "School uniforms",
+      name: "Preschools",
+      audience: "Early Years",
       description:
-        "Built for consistency across cohorts, size runs, and repeat orders.",
+        "School uniforms, knitted wear, jackets, hoodies, and school shoe bags designed for daily comfort and easy reordering.",
+      imageSrc: "/preschool.png",
+      services: ["School uniforms", "Knitted wear", "Shoe bags"],
     },
     {
-      name: "PE attire",
+      name: "Primary & International schools",
+      audience: "Core Schoolwear",
       description:
-        "Simple activewear programmes for schools that need easy reordering.",
+        "Reliable schoolwear programmes with uniforms, blazers, ties, and practical bags for growing student cohorts.",
+      imageSrc: "/school.png",
+      services: ["School uniforms", "Blazers and ties", "Suit bags"],
     },
     {
-      name: "Corporate wear",
+      name: "Teams",
+      audience: "Repeat Orders",
       description:
-        "Branded uniform pieces for day-to-day business use.",
+        "Dependable supply for small/large teams, with uniforms, jackets, hoodies, knitted wear, and accessories prepared for repeat demand.",
+      imageSrc: "/teams.png",
+      services: ["School uniforms", "Jackets and hoodies", "Knitted wear"],
     },
     {
-      name: "Team apparel",
+      name: "Industrial",
+      audience: "Operational Wear",
       description:
-        "Coordinated apparel for clubs, staff groups, and events.",
+        "Industrial work uniforms, outerwear, and carrying bags built for organisations that need practical, durable apparel programmes.",
+      imageSrc: "/industrial.png",
+      services: ["Industrial uniforms", "Jackets and hoodies", "Suit bags"],
+    },
+    {
+      name: "Corporate Offices",
+      audience: "Professional Attire",
+      description:
+        "Corporate uniform pieces, blazers, ties, and knitted layers tailored for teams that need a polished day-to-day presentation.",
+      imageSrc: "/corporate.png",
+      services: ["Corporate uniforms", "Blazers and ties", "Knitted wear"],
+    },
+    {
+      name: "Lifestyle",
+      audience: "Specialty Apparel",
+      description:
+        "Made-to-order apparel unique garments, and projects beyond standard school or corporate uniforms.",
+      imageSrc: "/specialty.png",
+      services: ["Custom clothing", "Batik", "Made-to-order wear"],
     },
   ];
 
@@ -385,37 +413,65 @@ export default function Home() {
         id="what-we-supply"
         className="mx-auto max-w-7xl px-6 py-20 lg:px-10"
       >
-        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="space-y-4">
-            <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
-              What We Supply
-            </p>
-            <h2 className="font-serif text-4xl font-semibold text-slate-950">
-              Uniforms for schools, teams, and businesses.
-            </h2>
-            <p className="max-w-xl text-lg leading-8 text-slate-700">
-              From schoolwear to branded apparel, Advent Star provides reliable supply with clear follow-up.
-            </p>
-          </div>
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-700 uppercase">
+            Our Collections
+          </p>
+          <h2 className="mt-4 font-serif text-4xl font-semibold text-slate-950 sm:text-5xl">
+            Uniforms for schools, offices, and institutions.
+          </h2>
+          <p className="mt-4 text-lg leading-8 text-slate-700">
+            Advent Star supports preschools, primary schools, international
+            schools, MOE schools, corporate offices, and institutions with
+            collections built for daily wear, formal presentation, and repeat
+            ordering.
+          </p>
+        </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            {productCategories.map((category, index) => (
-              <div
-                key={category.name}
-                className="group rounded-[1.75rem] border border-slate-200 bg-white/85 p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-amber-300 hover:bg-[#fffaf2] hover:shadow-xl"
-              >
-                <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
-                  Category {index + 1}
+        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {productCategories.map((category) => (
+            <article
+              key={category.name}
+              className="group relative overflow-hidden rounded-[1.9rem] border border-slate-200 bg-slate-950 shadow-xl shadow-slate-900/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-900/20"
+            >
+              <div className="absolute inset-0">
+                <Image
+                  src={category.imageSrc}
+                  alt={category.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,_rgba(15,23,42,0.08)_0%,_rgba(15,23,42,0.36)_44%,_rgba(15,23,42,0.88)_100%)]" />
+              </div>
+
+              <div className="relative flex min-h-[24rem] flex-col justify-end p-7">
+                <p className="text-xs font-semibold tracking-[0.2em] text-amber-200 uppercase">
+                  {category.audience}
                 </p>
-                <h3 className="mt-4 text-2xl font-semibold text-slate-950">
+                <h3 className="mt-3 font-serif text-3xl font-semibold text-white">
                   {category.name}
                 </h3>
-                <p className="mt-3 text-base leading-7 text-slate-600">
+                <p className="mt-3 max-w-sm text-sm leading-7 text-slate-100/90">
                   {category.description}
                 </p>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {category.services.map((service) => (
+                    <span
+                      key={service}
+                      className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm"
+                    >
+                      {service}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="absolute bottom-6 right-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1">
+                  <ArrowRightIcon />
+                </div>
               </div>
-            ))}
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 

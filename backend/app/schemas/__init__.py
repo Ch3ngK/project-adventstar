@@ -1,6 +1,7 @@
 from app.schemas.enquiry import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate
 from app.schemas.customer import CustomerCreate, CustomerResponse
-from app.schemas.quote import QuoteCreate, QuoteResponse
+from app.schemas.quote import QuoteCreate, QuoteResponse, QuoteStatusUpdate
+from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 
 __all__ = ["EnquiryCreate", 
            "EnquiryResponse", 
@@ -8,4 +9,9 @@ __all__ = ["EnquiryCreate",
            "CustomerCreate", 
            "CustomerResponse",
            "QuoteCreate",
-           "QuoteResponse"]
+           "QuoteResponse",
+           "QuoteStatusUpdate",
+           "OrderCreate",
+           "OrderResponse",
+           "OrderStatusUpdate"
+           ]
