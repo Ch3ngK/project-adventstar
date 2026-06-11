@@ -60,6 +60,7 @@ export default function QuotesPage() {
     );
     const [updatingQuoteId, setUpdatingQuoteId] = useState<number | null>(null);
     const [deletingQuoteId, setDeletingQuoteId] = useState<number | null>(null);
+    const [creatingOrderQuoteId, setCreatingOrderQuoteId] = useState<number | null>(null);
     const deferredSearchTerm = useDeferredValue(searchTerm);
 
     useEffect(() => {
@@ -146,6 +147,41 @@ export default function QuotesPage() {
             setErrorMessage("Unable to delete quote.");
         } finally {
             setDeletingQuoteId(null);
+        }
+    }
+
+    async function handleCreateOrder(quote: Quote) {
+        if (quote.status !== "approved") {
+            setErrorMessage("Only approved quotes can be converted to orders.")
+            return;
+        }
+        
+        try {
+            setCreatingOrderQuoteId(quote.id);
+            setErrorMessage("");
+
+            const response = await fetch(`http://127.0.0.1:8000/orders`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        customer_id: quote.customer_id,
+                        quote_id: quote.id,
+                        notes: "Created from approved quote.",
+                    }),
+                })
+            
+            if (!response.ok) {
+                throw new Error("Failed to create order.")
+            }
+
+            await response.json()
+        } catch {
+            setErrorMessage("Unable to create order.")
+        } finally {
+            setCreatingOrderQuoteId(null);
         }
     }
 
@@ -472,6 +508,15 @@ export default function QuotesPage() {
                                                     {deletingQuoteId === quote.id
                                                         ? "Deleting..."
                                                         : "Delete Quote"}
+                                                </button>
+
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => handleCreateOrder(quote)}
+                                                    disabled={creatingOrderQuoteId === quote.id || quote.status != "approved"}
+                                                    className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                                >
+                                                    {creatingOrderQuoteId === quote.id ? "Creating Order..." : "Create Order"}
                                                 </button>
                                             </div>
                                         </div>
