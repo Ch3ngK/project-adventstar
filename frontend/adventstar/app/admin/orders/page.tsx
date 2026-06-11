@@ -2,37 +2,58 @@
 
 import { useEffect, useState } from "react";
 
-type Order = {
-    id: number;
-    customer_id: number;
-    quote_id: number;
-    status: string;
-    notes: string | null;
-    created_at: string; 
-};
-
 const statusOptions = [
     "pending",
     "in_production",
     "ready",
     "delivered",
     "cancelled",
-];
+] as const;
+
+type OrderStatus = (typeof statusOptions)[number];
+
+type Order = {
+    id: number;
+    customer_id: number;
+    quote_id: number;
+    status: OrderStatus;
+    notes: string | null;
+    created_at: string;
+};
+
+const statusLabelMap: Record<OrderStatus, string> = {
+    pending: "Pending",
+    in_production: "In Production",
+    ready: "Ready",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+};
+
+const statusBadgeClasses: Record<OrderStatus, string> = {
+    pending: "border-amber-200 bg-amber-50 text-amber-800",
+    in_production: "border-sky-200 bg-sky-50 text-sky-800",
+    ready: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    delivered: "border-slate-200 bg-slate-100 text-slate-700",
+    cancelled: "border-rose-200 bg-rose-50 text-rose-800",
+};
 
 export default function OrdersPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
+    const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all"); // By default, status filter is set to "all".
+    const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest"); // By default, show newest orders first.
 
     useEffect(() => {
         async function loadOrders() {
             try {
-                const response = await fetch ("http://127.0.0.1:8000/orders");
+                const response = await fetch("http://127.0.0.1:8000/orders");
+
                 if (!response.ok) {
                     throw new Error("Failed to fetch orders.");
                 }
-                
+
                 const data = await response.json();
                 setOrders(data);
                 setErrorMessage("");
@@ -52,66 +73,280 @@ export default function OrdersPage() {
             setErrorMessage("");
 
             const response = await fetch(
-                `http://127.0.0.1:8000/orders/#{orderId}/status`,
+                `http://127.0.0.1:8000/orders/${orderId}/status`,
                 {
                     method: "PATCH",
                     headers: {
-                        "Content-Type": "application/json"
-                    }, 
+                        "Content-Type": "application/json",
+                    },
                     body: JSON.stringify({ status: newStatus }),
                 }
             );
 
             if (!response.ok) {
-                throw new Error("Failed to update order status.")
+                throw new Error("Failed to update order status.");
             }
 
             const updatedOrder = await response.json();
 
             setOrders((currentOrders) =>
-                currentOrders.map((order) => 
-                order.id === orderId ? updatedOrder : order));
-
+                currentOrders.map((order) =>
+                    order.id === orderId ? updatedOrder : order
+                )
+            );
         } catch {
-            setErrorMessage("Unable to update order");
+            setErrorMessage("Unable to update order.");
         } finally {
             setUpdatingOrderId(null);
         }
     }
 
+    const totalOrders = orders.length;
+    const pendingOrders = orders.filter((order) => order.status === "pending").length;
+    const inProductionOrders = orders.filter(
+        (order) => order.status === "in_production"
+    ).length;
+    const readyOrders = orders.filter((order) => order.status === "ready").length;
+    const deliveredOrders = orders.filter(
+        (order) => order.status === "delivered"
+    ).length;
+
+    const visibleOrders = [...orders] // [...orders] creates a copy of the array, as .sort() mutates the array
+        .filter((order) => {
+            return statusFilter === "all" || order.status === statusFilter;
+        })
+        .sort((a, b) => {
+            const aTime = new Date(a.created_at).getTime(); 
+            const bTime = new Date(b.created_at).getTime(); 
+
+            if (sortOrder === "newest") {
+                return bTime - aTime;
+            }
+
+            return aTime - bTime;
+        });
+
     return (
-        <main>
-            <h1>Orders</h1>
+        <main className="min-h-screen bg-slate-100 px-6 py-8 text-slate-950">
+            <div className="mx-auto max-w-6xl space-y-6">
+                <header>
+                    <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
+                        Admin
+                    </p>
+                    <h1 className="mt-2 text-4xl font-semibold">Orders</h1>
+                    <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+                        Track confirmed customer work after an approved quote becomes an
+                        order.
+                    </p>
+                </header>
 
-            {isLoading ? <p>Loading orders...</p> : null}
+                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+                            Total Orders
+                        </p>
+                        <p className="mt-3 text-3xl font-semibold">{totalOrders}</p>
+                    </div>
 
-            {errorMessage ? <p>{errorMessage}</p> : null}
+                    <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                        <p className="text-xs font-semibold tracking-[0.16em] text-amber-700 uppercase">
+                            Pending
+                        </p>
+                        <p className="mt-3 text-3xl font-semibold text-amber-900">
+                            {pendingOrders}
+                        </p>
+                    </div>
 
-            {!isLoading && orders.length === 0 && !errorMessage ? (
-                <p>No orders yet.</p>
-            ) : null}
+                    <div className="rounded-3xl border border-sky-200 bg-sky-50 p-5 shadow-sm">
+                        <p className="text-xs font-semibold tracking-[0.16em] text-sky-700 uppercase">
+                            In Production
+                        </p>
+                        <p className="mt-3 text-3xl font-semibold text-sky-900">
+                            {inProductionOrders}
+                        </p>
+                    </div>
 
-            {orders.map((order) => (
-                <article key={order.id}>
-                    <h2>Order #{order.id}</h2>
-                    <select
-                        value={order.status}
-                        onChange={(event) => handleStatusChange(order.id, event.target.value)}
-                        disabled={updatingOrderId === order.id}
-                    >
-                        {statusOptions.map((status) => (
-                           <option key={status} value={status}>
-                                {status}
-                           </option> 
-                        ))}
-                    </select>
-                    <p>Customer ID: {order.customer_id}</p>
-                    <p>Quote ID: {order.quote_id}</p>
-                    <p>Status: {order.status}</p>
-                    <p>Notes: {order.notes || "No notes provided."}</p>
-                    <p>Created: {new Date(order.created_at).toLocaleString()}</p>
-                </article>
-            ))}
+                    <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+                        <p className="text-xs font-semibold tracking-[0.16em] text-emerald-700 uppercase">
+                            Ready
+                        </p>
+                        <p className="mt-3 text-3xl font-semibold text-emerald-900">
+                            {readyOrders}
+                        </p>
+                    </div>
+
+                    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+                            Delivered
+                        </p>
+                        <p className="mt-3 text-3xl font-semibold">{deliveredOrders}</p>
+                    </div>
+                </section>
+
+                {errorMessage ? (
+                    <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                        {errorMessage}
+                    </p>
+                ) : null}
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                        <label
+                            htmlFor="order-status-filter"
+                            className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
+                        >
+                            Status Filter
+                        </label>
+
+                        <select
+                            id="order-status-filter"
+                            value={statusFilter}
+                            onChange={(event) =>
+                            setStatusFilter(event.target.value as "all" | OrderStatus)
+                            }
+                            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
+                        >
+                            <option value="all">All statuses</option>
+
+                            {statusOptions.map((status) => (
+                            <option key={status} value={status}>
+                                {statusLabelMap[status]}
+                            </option>
+                            ))}
+                        </select>
+                        </div>
+
+                        <div>
+                        <label
+                            htmlFor="order-sort"
+                            className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
+                        >
+                            Sort
+                        </label>
+
+                        <select
+                            id="order-sort"
+                            value={sortOrder}
+                            onChange={(event) =>
+                            setSortOrder(event.target.value as "newest" | "oldest")
+                            }
+                            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
+                        >
+                            <option value="newest">Newest first</option>
+                            <option value="oldest">Oldest first</option>
+                        </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="grid gap-4">
+                    {isLoading ? <p>Loading orders...</p> : null}
+
+                    {!isLoading && orders.length === 0 && !errorMessage ? (
+                        <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
+                            <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
+                                No orders yet
+                            </p>
+                            <h2 className="mt-3 text-2xl font-semibold">
+                                Approved quotes will appear here after they are converted
+                                into orders.
+                            </h2>
+                        </div>
+                    ) : null}
+
+                    {visibleOrders.map((order) => (
+                        <article
+                            key={order.id}
+                            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                        >
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                <div>
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <h2 className="text-2xl font-semibold">
+                                            Order #{order.id}
+                                        </h2>
+
+                                        <span
+                                            className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.12em] uppercase ${statusBadgeClasses[order.status]}`}
+                                        >
+                                            {statusLabelMap[order.status]}
+                                        </span>
+                                    </div>
+
+                                    <p className="mt-2 text-sm text-slate-500">
+                                        Created{" "}
+                                        {new Date(order.created_at).toLocaleString()}
+                                    </p>
+                                </div>
+
+                                <div className="w-full max-w-xs">
+                                    <label
+                                        htmlFor={`order-status-${order.id}`}
+                                        className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
+                                    >
+                                        Status
+                                    </label>
+
+                                    <select
+                                        id={`order-status-${order.id}`}
+                                        value={order.status}
+                                        onChange={(event) =>
+                                            handleStatusChange(
+                                                order.id,
+                                                event.target.value
+                                            )
+                                        }
+                                        disabled={updatingOrderId === order.id}
+                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        {statusOptions.map((status) => (
+                                            <option key={status} value={status}>
+                                                {statusLabelMap[status]}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <p className="mt-2 text-xs text-slate-500">
+                                        {updatingOrderId === order.id
+                                            ? "Saving status..."
+                                            : "Status updates are applied immediately."}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 grid gap-4 md:grid-cols-3">
+                                <div className="rounded-2xl bg-slate-50 p-4">
+                                    <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+                                        Customer ID
+                                    </p>
+                                    <p className="mt-2 text-lg font-semibold">
+                                        {order.customer_id}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-2xl bg-slate-50 p-4">
+                                    <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+                                        Quote ID
+                                    </p>
+                                    <p className="mt-2 text-lg font-semibold">
+                                        {order.quote_id}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-2xl bg-slate-50 p-4">
+                                    <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+                                        Notes
+                                    </p>
+                                    <p className="mt-2 text-sm leading-6 text-slate-700">
+                                        {order.notes || "No notes provided."}
+                                    </p>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                </section>
+            </div>
         </main>
     );
 }
