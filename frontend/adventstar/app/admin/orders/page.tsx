@@ -44,6 +44,7 @@ export default function OrdersPage() {
     const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
     const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all"); // By default, status filter is set to "all".
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest"); // By default, show newest orders first.
+    const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
 
     useEffect(() => {
         async function loadOrders() {
@@ -98,6 +99,38 @@ export default function OrdersPage() {
             setErrorMessage("Unable to update order.");
         } finally {
             setUpdatingOrderId(null);
+        }
+    }
+
+    async function handleDeleteOrder(orderId: number) {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this order"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setDeletingOrderId(orderId);
+            setErrorMessage(""); 
+
+            const response = await fetch(`http://127.0.0.1:8000/orders/${orderId}`, 
+                {
+                    method: "DELETE",
+                }
+            );
+
+            if (!response.ok) { // (!response.ok) shows whether the HTTP request succeeded (boolean). 
+                throw new Error("Failed to delete order");
+            }
+            
+            setOrders((currentOrders) => 
+                currentOrders.filter((order) => order.id != orderId));
+        } catch {
+            setErrorMessage("Unable to delete order.");
+        } finally {
+            setDeletingOrderId(null);
         }
     }
 
@@ -306,6 +339,15 @@ export default function OrdersPage() {
                                             </option>
                                         ))}
                                     </select>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteOrder(order.id)}
+                                        disabled={deletingOrderId === order.id}
+                                        className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                        {deletingOrderId === order.id ? "Deleting..." : "Delete Order"}
+                                    </button>
 
                                     <p className="mt-2 text-xs text-slate-500">
                                         {updatingOrderId === order.id
