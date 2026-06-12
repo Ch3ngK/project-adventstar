@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+import ChatBot from "@/components/Chatbot";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -28,7 +29,10 @@ export default function RootLayout({
       lang="en"
       className={`${manrope.variable} ${sourceSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <ChatBot />
+      </body>
     </html>
   );
 }

@@ -16,7 +16,7 @@ type Order = {
     id: number; 
     customer_id: number;
     quote_id: number;
-    status: number;
+    status: string;
     notes: string | null;
     created_at: string;
 };
@@ -99,7 +99,7 @@ export default function QuotesPage() {
                 }
                 
                 if (!customerResponse.ok) {
-                    throw new Error("Failed to fetch orders.");
+                    throw new Error("Failed to fetch customers.");
                 }
 
                 const data = await response.json();
@@ -567,7 +567,12 @@ export default function QuotesPage() {
                                                     disabled={creatingOrderQuoteId === quote.id || quote.status != "approved" || orderAlreadyExists}
                                                     className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                                                 >
-                                                    {creatingOrderQuoteId === quote.id ? "Creating Order..." : "Create Order"}
+                                                    {orderAlreadyExists
+                                                        ? "Order Created"
+                                                        : creatingOrderQuoteId === quote.id 
+                                                            ? "Creating Order..."
+                                                            : "Create Order"
+                                                    }
                                                 </button>
                                             </div>
                                         </div>

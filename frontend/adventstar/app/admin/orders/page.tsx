@@ -165,6 +165,7 @@ export default function OrdersPage() {
     ).length;
 
     const normalizedSearchTerm = deferredSearchTerm.trim().toLowerCase();
+    const hasActiveFilters = searchTerm.trim() != "" || statusFilter != "all";
     const visibleOrders = [...orders] // [...orders] creates a copy of the array, as .sort() mutates the array
         .filter((order) => {
             const matchesStatus = 
@@ -337,11 +338,12 @@ export default function OrdersPage() {
                     {!isLoading && visibleOrders.length === 0 && !errorMessage ? (
                         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
                             <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
-                                No orders yet
+                               {hasActiveFilters ? "No matching orders" : "No orders yet"}
                             </p>
                             <h2 className="mt-3 text-2xl font-semibold">
-                                Approved quotes will appear here after they are converted
-                                into orders.
+                                {hasActiveFilters
+                                    ? "Try changing the search term or status filter."
+                                    : "Approved quotes will appear here after they are converted into orders."}
                             </h2>
                         </div>
                     ) : null}
@@ -350,7 +352,6 @@ export default function OrdersPage() {
                         const customer = customers.find(
                             (customer) => customer.id === order.customer_id
                         );
-
                         return(
                         <article
                             key={order.id}
