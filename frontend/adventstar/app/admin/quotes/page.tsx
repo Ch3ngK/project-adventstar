@@ -12,6 +12,24 @@ type Quote = {
     created_at: string;
 };
 
+type Order = {
+    id: number; 
+    customer_id: number;
+    quote_id: number;
+    status: number;
+    notes: string | null;
+    created_at: string;
+};
+
+type Customer = {
+    id: number;
+    name: string;
+    company_name: string;
+    email: string;
+    phone: string | null;
+    created_at: string;
+}
+
 const statusOptions = ["draft", "sent", "approved", "rejected"] as const;
 
 const statusLabelMap: Record<(typeof statusOptions)[number], string> = {
@@ -51,6 +69,8 @@ function formatCreatedAt(value: string) {
 
 export default function QuotesPage() {
     const [quotes, setQuotes] = useState<Quote[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [customers, setCustomers] = useState<Customer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
@@ -67,13 +87,28 @@ export default function QuotesPage() {
         async function loadQuotes() {
             try {
                 const response = await fetch("http://127.0.0.1:8000/quotes");
+                const orderResponse = await fetch("http://127.0.0.1:8000/orders");
+                const customerResponse = await fetch("http://127.0.0.1:8000/customers");
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch quotes.");
                 }
 
+                if (!orderResponse.ok) {
+                    throw new Error("Failed to fetch orders.");
+                }
+                
+                if (!customerResponse.ok) {
+                    throw new Error("Failed to fetch orders.");
+                }
+
                 const data = await response.json();
+                const ordersData = await orderResponse.json();
+                const customersData = await customerResponse.json(); 
+
                 setQuotes(data);
+                setOrders(ordersData);
+                setCustomers(customersData);
                 setErrorMessage("");
             } catch {
                 setErrorMessage("Unable to load quotes.");
@@ -177,7 +212,8 @@ export default function QuotesPage() {
                 throw new Error("Failed to create order.")
             }
 
-            await response.json()
+            const createdOrder = await response.json()
+            setOrders((currentOrders) => [...currentOrders, createdOrder]);
         } catch {
             setErrorMessage("Unable to create order.")
         } finally {
@@ -192,13 +228,20 @@ export default function QuotesPage() {
             const matchesStatus =
                 statusFilter === "all" || quote.status === statusFilter;
 
+            const customer = customers.find(
+                (customer) => customer.id === quote.customer_id
+            );
+
             const matchesSearch =
                 normalizedSearchTerm === "" ||
                 quote.id.toString().includes(normalizedSearchTerm) ||
                 quote.customer_id.toString().includes(normalizedSearchTerm) ||
                 quote.enquiry_id.toString().includes(normalizedSearchTerm) ||
                 quote.status.toLowerCase().includes(normalizedSearchTerm) ||
-                (quote.notes ?? "").toLowerCase().includes(normalizedSearchTerm);
+                (quote.notes ?? "").toLowerCase().includes(normalizedSearchTerm) ||
+                (customer?.company_name ?? "").toLowerCase().includes(normalizedSearchTerm) ||
+                (customer?.name ?? "").toLowerCase().includes(normalizedSearchTerm) ||
+                (customer?.email ?? "").toLowerCase().includes(normalizedSearchTerm);
 
             return matchesStatus && matchesSearch;
         })
@@ -412,6 +455,10 @@ export default function QuotesPage() {
                     ) : (
                         visibleQuotes.map((quote) => {
                             const statusKey = quote.status as (typeof statusOptions)[number];
+                            const orderAlreadyExists = orders.some(
+                                (order) => order.quote_id === quote.id);
+                            const customer = customers.find(
+                                (customer) => customer.id === quote.customer_id);
 
                             return (
                                 <article
@@ -438,12 +485,16 @@ export default function QuotesPage() {
                                                 </div>
 
                                                 <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-4">
-                                                    <p>
-                                                        <span className="font-semibold text-slate-800">
-                                                            Customer ID:
-                                                        </span>{" "}
-                                                        {quote.customer_id}
-                                                    </p>
+                                                    <div>
+                                                        <p className="font-semibold text-slate-800">Customer</p>
+                                                        <p>{customer?.company_name || `Customer #${quote.customer_id}`}</p>
+                                                        <p className="text-xs text-slate-500">
+                                                            {customer?.name || "Contact not available"}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500">
+                                                            {customer?.email || "Email not available"}
+                                                        </p>
+                                                    </div>
                                                     <p>
                                                         <span className="font-semibold text-slate-800">
                                                             Enquiry ID:
@@ -513,7 +564,7 @@ export default function QuotesPage() {
                                                 <button 
                                                     type="button"
                                                     onClick={() => handleCreateOrder(quote)}
-                                                    disabled={creatingOrderQuoteId === quote.id || quote.status != "approved"}
+                                                    disabled={creatingOrderQuoteId === quote.id || quote.status != "approved" || orderAlreadyExists}
                                                     className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                                                 >
                                                     {creatingOrderQuoteId === quote.id ? "Creating Order..." : "Create Order"}

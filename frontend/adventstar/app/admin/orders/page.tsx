@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 
 const statusOptions = [
     "pending",
@@ -21,6 +21,15 @@ type Order = {
     created_at: string;
 };
 
+type Customer = {
+    id: number;
+    name: string;
+    company_name: string;
+    email: string;
+    phone: string | null;
+    created_at: string;
+}
+
 const statusLabelMap: Record<OrderStatus, string> = {
     pending: "Pending",
     in_production: "In Production",
@@ -40,23 +49,34 @@ const statusBadgeClasses: Record<OrderStatus, string> = {
 export default function OrdersPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [orders, setOrders] = useState<Order[]>([]);
+    const [customers, setCustomers] = useState<Customer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
     const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all"); // By default, status filter is set to "all".
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest"); // By default, show newest orders first.
+    const [searchTerm, setSearchTerm] = useState("");
     const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
+    const deferredSearchTerm = useDeferredValue(searchTerm)
 
     useEffect(() => {
         async function loadOrders() {
             try {
                 const response = await fetch("http://127.0.0.1:8000/orders");
+                const customerResponse = await fetch("http://127.0.0.1:8000/customers");
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch orders.");
                 }
 
+                if (!customerResponse.ok) {
+                    throw new Error("Failed to fetch customer details.");
+                }
+
                 const data = await response.json();
+                const customerData = await customerResponse.json(); 
+
                 setOrders(data);
+                setCustomers(customerData);
                 setErrorMessage("");
             } catch {
                 setErrorMessage("Unable to load orders.");
@@ -144,9 +164,28 @@ export default function OrdersPage() {
         (order) => order.status === "delivered"
     ).length;
 
+    const normalizedSearchTerm = deferredSearchTerm.trim().toLowerCase();
     const visibleOrders = [...orders] // [...orders] creates a copy of the array, as .sort() mutates the array
         .filter((order) => {
-            return statusFilter === "all" || order.status === statusFilter;
+            const matchesStatus = 
+                statusFilter === "all" || order.status === statusFilter;
+
+            const customer = customers.find(
+                (customer) => customer.id === order.customer_id
+            );
+
+            const matchesSearch = 
+                normalizedSearchTerm == "" ||
+                order.id.toString().includes(normalizedSearchTerm) ||
+                order.customer_id.toString().includes(normalizedSearchTerm) ||
+                order.quote_id.toString().includes(normalizedSearchTerm) ||
+                order.status.toLowerCase().includes(normalizedSearchTerm) ||
+                (order.notes ?? "").toLowerCase().includes(normalizedSearchTerm) ||
+                (customer?.company_name ?? "").toLowerCase().includes(normalizedSearchTerm) ||
+                (customer?.name ?? "").toLowerCase().includes(normalizedSearchTerm) ||
+                (customer?.email ?? "").toLowerCase().includes(normalizedSearchTerm);
+
+            return matchesStatus && matchesSearch;
         })
         .sort((a, b) => {
             const aTime = new Date(a.created_at).getTime(); 
@@ -223,52 +262,71 @@ export default function OrdersPage() {
                 ) : null}
 
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr_0.8fr]">
                         <div>
-                        <label
-                            htmlFor="order-status-filter"
-                            className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
-                        >
-                            Status Filter
-                        </label>
-
-                        <select
-                            id="order-status-filter"
-                            value={statusFilter}
-                            onChange={(event) =>
-                            setStatusFilter(event.target.value as "all" | OrderStatus)
-                            }
-                            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
-                        >
-                            <option value="all">All statuses</option>
-
-                            {statusOptions.map((status) => (
-                            <option key={status} value={status}>
-                                {statusLabelMap[status]}
-                            </option>
-                            ))}
-                        </select>
+                            <label
+                                htmlFor="order-search"
+                                className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
+                            >
+                                Search
+                            </label>
+                            <input
+                                id="order-search"
+                                type="search"
+                                value={searchTerm}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                placeholder="Search customer, email, order, quote, status, or notes"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                            />
                         </div>
 
                         <div>
-                        <label
-                            htmlFor="order-sort"
-                            className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
-                        >
-                            Sort
-                        </label>
+                            <label
+                                htmlFor="order-status-filter"
+                                className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
+                            >
+                                Status Filter
+                            </label>
 
-                        <select
-                            id="order-sort"
-                            value={sortOrder}
-                            onChange={(event) =>
-                            setSortOrder(event.target.value as "newest" | "oldest")
-                            }
-                            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
-                        >
-                            <option value="newest">Newest first</option>
-                            <option value="oldest">Oldest first</option>
-                        </select>
+                            <select
+                                id="order-status-filter"
+                                value={statusFilter}
+                                onChange={(event) =>
+                                    setStatusFilter(
+                                        event.target.value as "all" | OrderStatus
+                                    )
+                                }
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                            >
+                                <option value="all">All statuses</option>
+
+                                {statusOptions.map((status) => (
+                                    <option key={status} value={status}>
+                                        {statusLabelMap[status]}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="order-sort"
+                                className="mb-2 block text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase"
+                            >
+                                Sort
+                            </label>
+
+                            <select
+                                id="order-sort"
+                                value={sortOrder}
+                                onChange={(event) =>
+                                    setSortOrder(event.target.value as "newest" | "oldest")
+                                }
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                            >
+                                <option value="newest">Newest first</option>
+                                <option value="oldest">Oldest first</option>
+                            </select>
                         </div>
                     </div>
                 </section>
@@ -276,7 +334,7 @@ export default function OrdersPage() {
                 <section className="grid gap-4">
                     {isLoading ? <p>Loading orders...</p> : null}
 
-                    {!isLoading && orders.length === 0 && !errorMessage ? (
+                    {!isLoading && visibleOrders.length === 0 && !errorMessage ? (
                         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
                             <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
                                 No orders yet
@@ -288,7 +346,12 @@ export default function OrdersPage() {
                         </div>
                     ) : null}
 
-                    {visibleOrders.map((order) => (
+                    {visibleOrders.map((order) => {
+                        const customer = customers.find(
+                            (customer) => customer.id === order.customer_id
+                        );
+
+                        return(
                         <article
                             key={order.id}
                             className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
@@ -360,10 +423,16 @@ export default function OrdersPage() {
                             <div className="mt-6 grid gap-4 md:grid-cols-3">
                                 <div className="rounded-2xl bg-slate-50 p-4">
                                     <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
-                                        Customer ID
+                                        Customer
                                     </p>
                                     <p className="mt-2 text-lg font-semibold">
-                                        {order.customer_id}
+                                        {customer?.company_name || `Customer #${order.customer_id}`}
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        {customer?.name || "Contact not available"}
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        {customer?.email || "Email not available"}
                                     </p>
                                 </div>
 
@@ -386,7 +455,8 @@ export default function OrdersPage() {
                                 </div>
                             </div>
                         </article>
-                    ))}
+                        );
+                    })}
                 </section>
             </div>
         </main>
