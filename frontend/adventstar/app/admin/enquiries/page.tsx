@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useState } from "react"; 
+import Link from "next/link";
 
 type Enquiry = {
     id: number; 
@@ -548,6 +549,12 @@ export default function AdminEnquiriesPage() {
           </div>
         </div>
       ) : null}
+      <Link
+        href="/admin"
+        className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
+        >
+          Back to Admin Hub
+      </Link>
     </main>
   );
 }

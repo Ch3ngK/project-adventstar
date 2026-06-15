@@ -106,7 +106,7 @@ const processCards = [
     title: "Production Technology",
     description:
       "Modern equipment helps us handle consistent runs, cleaner finishing, and the practical demands of repeat orders.",
-    imageSrc: "/machine2.png",
+    imageSrc: "/machine3.png",
     imageAlt: "Production machines used for uniform work",
     spanClass: "lg:col-span-2",
   },
@@ -123,7 +123,7 @@ const processCards = [
     title: "Detail and Finishing",
     description:
       "Careful finishing helps each order look polished, feel consistent, and arrive ready for everyday use.",
-    imageSrc: "/employees.png",
+    imageSrc: "/operator2.png",
     imageAlt: "Uniform production and finishing details",
     spanClass: "",
   },
@@ -235,7 +235,7 @@ export default function AboutPage() {
           <div className="relative overflow-hidden rounded-[2.2rem] border border-slate-200/70 bg-white/70 shadow-2xl shadow-slate-900/10">
             <div className="relative h-[22rem] sm:h-[28rem]">
               <Image
-                src="/operator2.png"
+                src="/employees.png"
                 alt="Advent Star team members working in the production space"
                 fill
                 className="object-cover"

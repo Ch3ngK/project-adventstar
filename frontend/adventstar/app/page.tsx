@@ -286,7 +286,7 @@ export default function Home() {
 
           <div className="flex shrink-0 items-center gap-3">
             <Link
-              href="/admin/enquiries"
+              href="/admin"
               className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm"
             >
               Admin
