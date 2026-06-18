@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user
 from app.db.session import get_db
-from app.models import Customer, Enquiry
+from app.models import Customer, Enquiry, User
 from app.schemas import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate
 
 router = APIRouter(prefix="/enquiries", tags=["enquiries"])
@@ -67,12 +68,19 @@ def create_enquiry(
 
 
 @router.get("", response_model=list[EnquiryResponse])
-def get_enquiries(db: Session = Depends(get_db)) -> list[Enquiry]:
+def get_enquiries(
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> list[Enquiry]:
     return db.query(Enquiry).all()
 
 
 @router.get("/{enquiry_id}", response_model=EnquiryResponse)
-def get_enquiry(enquiry_id: int, db: Session = Depends(get_db)) -> Enquiry:
+def get_enquiry(
+    enquiry_id: int,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> Enquiry:
     enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
 
     if enquiry is None:
@@ -86,6 +94,7 @@ def update_enquiry_status(
     enquiry_id: int,
     status_update: EnquiryStatusUpdate,
     db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> Enquiry:
     enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
 
@@ -100,7 +109,11 @@ def update_enquiry_status(
 
 
 @router.delete("/{enquiry_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_enquiry(enquiry_id: int, db: Session = Depends(get_db)) -> Response:
+def delete_enquiry(
+    enquiry_id: int,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> Response:
     enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
 
     if enquiry is None:

@@ -1,15 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user
 from app.db.session import get_db
-from app.models import Customer, Enquiry, Quote
+from app.models import Customer, Enquiry, Quote, User
 from app.schemas import QuoteCreate, QuoteResponse, QuoteStatusUpdate
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 
 @router.post("", response_model=QuoteResponse)
 def create_quote(
-    quote: QuoteCreate, db: Session = Depends(get_db)
+    quote: QuoteCreate,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
     ) -> Quote:
     customer = db.query(Customer).filter(Customer.id == quote.customer_id).first()
 
@@ -42,11 +45,18 @@ def create_quote(
 
 
 @router.get("", response_model=list[QuoteResponse])
-def get_quotes(db: Session = Depends(get_db)) -> list[QuoteResponse]:
+def get_quotes(
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> list[QuoteResponse]:
     return db.query(Quote).all()
 
 @router.get("/{quote_id}", response_model=QuoteResponse)
-def get_quote(quote_id: int, db: Session = Depends(get_db)) -> Quote:
+def get_quote(
+    quote_id: int,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> Quote:
     quote = db.query(Quote).filter(Quote.id == quote_id).first()
 
     if quote is None:
@@ -60,6 +70,7 @@ def update_quote_status(
     quote_id: int,
     status_update: QuoteStatusUpdate,
     db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> Quote:
     quote = db.query(Quote).filter(Quote.id == quote_id).first()
 
@@ -75,12 +86,13 @@ def update_quote_status(
 @router.delete("/{quote_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_quote(
     quote_id: int, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> Response:
     quote = db.query(Quote).filter(Quote.id == quote_id).first()
 
     if quote is None:
-        raise HTTPException(status_code=404, details="Quote not found.")
+        raise HTTPException(status_code=404, detail="Quote not found.")
     
     db.delete(quote) 
     db.commit()

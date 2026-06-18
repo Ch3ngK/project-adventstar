@@ -2,6 +2,7 @@
 
 import { useDeferredValue, useEffect, useState } from "react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 type Quote = {
     id: number;
@@ -87,9 +88,9 @@ export default function QuotesPage() {
     useEffect(() => {
         async function loadQuotes() {
             try {
-                const response = await fetch("http://127.0.0.1:8000/quotes");
-                const orderResponse = await fetch("http://127.0.0.1:8000/orders");
-                const customerResponse = await fetch("http://127.0.0.1:8000/customers");
+                const response = await fetch(apiUrl("/quotes"));
+                const orderResponse = await fetch(apiUrl("/orders"));
+                const customerResponse = await fetch(apiUrl("/customers"));
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch quotes.");
@@ -127,7 +128,7 @@ export default function QuotesPage() {
             setErrorMessage("");
 
             const response = await fetch(
-                `http://127.0.0.1:8000/quotes/${quoteId}/status`,
+                apiUrl(`/quotes/${quoteId}/status`),
                 {
                     method: "PATCH",
                     headers: {
@@ -168,7 +169,7 @@ export default function QuotesPage() {
             setDeletingQuoteId(quoteId);
             setErrorMessage("");
 
-            const response = await fetch(`http://127.0.0.1:8000/quotes/${quoteId}`, {
+            const response = await fetch(apiUrl(`/quotes/${quoteId}`), {
                 method: "DELETE",
             });
 
@@ -196,7 +197,7 @@ export default function QuotesPage() {
             setCreatingOrderQuoteId(quote.id);
             setErrorMessage("");
 
-            const response = await fetch(`http://127.0.0.1:8000/orders`,
+            const response = await fetch(apiUrl("/orders"),
                 {
                     method: "POST",
                     headers: {

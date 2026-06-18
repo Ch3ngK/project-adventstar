@@ -12,9 +12,10 @@ class OrderResponse(BaseModel):
     id: int
     customer_id: int
     quote_id: int
-    status: int
+    status: str
     notes: str | None = None
     created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
 class OrderStatusUpdate(BaseModel):
     status: str

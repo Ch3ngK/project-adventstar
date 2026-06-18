@@ -2,6 +2,7 @@
 
 import { useDeferredValue, useEffect, useState } from "react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 const statusOptions = [
     "pending",
@@ -62,8 +63,8 @@ export default function OrdersPage() {
     useEffect(() => {
         async function loadOrders() {
             try {
-                const response = await fetch("http://127.0.0.1:8000/orders");
-                const customerResponse = await fetch("http://127.0.0.1:8000/customers");
+                const response = await fetch(apiUrl("/orders"));
+                const customerResponse = await fetch(apiUrl("/customers"));
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch orders.");
@@ -95,7 +96,7 @@ export default function OrdersPage() {
             setErrorMessage("");
 
             const response = await fetch(
-                `http://127.0.0.1:8000/orders/${orderId}/status`,
+                apiUrl(`/orders/${orderId}/status`),
                 {
                     method: "PATCH",
                     headers: {
@@ -136,7 +137,7 @@ export default function OrdersPage() {
             setDeletingOrderId(orderId);
             setErrorMessage(""); 
 
-            const response = await fetch(`http://127.0.0.1:8000/orders/${orderId}`, 
+            const response = await fetch(apiUrl(`/orders/${orderId}`), 
                 {
                     method: "DELETE",
                 }

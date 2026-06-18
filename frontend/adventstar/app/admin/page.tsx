@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 type Customer = {
   id: number;
@@ -123,6 +126,15 @@ type StatusChartRow = {
   barClassName: string;
 };
 
+type RecentActivityItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  meta: string;
+  href: string;
+  actionLabel: string;
+};
+
 function buildStatusRows<T extends string>(
   items: Array<{ status: string }>,
   statuses: readonly T[],
@@ -144,13 +156,52 @@ function getBarWidth(count: number, maxCount: number) {
   return `${Math.max((count / maxCount) * 100, 10)}%`;
 }
 
+function sortByNewest<T extends { created_at: string }>(items: T[]) {
+  return [...items].sort(
+    (left, right) =>
+      new Date(right.created_at).getTime() - new Date(left.created_at).getTime(),
+  );
+}
+
+function formatCreatedAt(value: string) {
+  return new Intl.DateTimeFormat("en-SG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+function formatCurrency(amount: string) {
+  const value = Number(amount);
+
+  if (Number.isNaN(value)) {
+    return `SGD ${amount}`;
+  }
+
+  return new Intl.NumberFormat("en-SG", {
+    style: "currency",
+    currency: "SGD",
+    minimumFractionDigits: 2,
+  }).format(value);
+}
+
 export default async function AdminDashboardPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("adventstar_token")?.value;
+
+  if (!token) {
+    redirect("/admin/login");
+  }
+
+  const authHeaders = {
+    Authorization: `Bearer ${token}`,
+  };
+
   const [enquiriesResponse, quotesResponse, ordersResponse, customersResponse] =
     await Promise.all([
-      fetch("http://127.0.0.1:8000/enquiries", { cache: "no-store" }),
-      fetch("http://127.0.0.1:8000/quotes", { cache: "no-store" }),
-      fetch("http://127.0.0.1:8000/orders", { cache: "no-store" }),
-      fetch("http://127.0.0.1:8000/customers", { cache: "no-store" }),
+      fetch(apiUrl("/enquiries"), { cache: "no-store", headers: authHeaders}),
+      fetch(apiUrl("/quotes"), { cache: "no-store", headers: authHeaders}),
+      fetch(apiUrl("/orders"), { cache: "no-store", headers: authHeaders}),
+      fetch(apiUrl("/customers"), { cache: "no-store", headers: authHeaders}),
     ]);
 
   if (
@@ -230,6 +281,76 @@ export default async function AdminDashboardPage() {
     },
   ];
 
+  const customersById = new Map(customers.map((customer) => [customer.id, customer]));
+
+  const recentEnquiries: RecentActivityItem[] = sortByNewest(enquiries)
+    .slice(0, 4)
+    .map((enquiry) => ({
+      id: `enquiry-${enquiry.id}`,
+      title: enquiry.company_name ?? enquiry.customer_name,
+      subtitle: `${enquiryStatusLabels[enquiry.status as (typeof enquiryStatuses)[number]]} enquiry`,
+      meta: formatCreatedAt(enquiry.created_at),
+      href: enquiry.customer_id
+        ? `/admin/customers/${enquiry.customer_id}`
+        : "/admin/enquiries",
+      actionLabel: enquiry.customer_id ? "View customer" : "Open enquiries",
+    }));
+
+  const recentQuotes: RecentActivityItem[] = sortByNewest(quotes)
+    .slice(0, 4)
+    .map((quote) => {
+      const customer = customersById.get(quote.customer_id);
+
+      return {
+        id: `quote-${quote.id}`,
+        title: customer?.company_name ?? customer?.name ?? `Customer #${quote.customer_id}`,
+        subtitle: `${quoteStatusLabels[quote.status as (typeof quoteStatuses)[number]]} quote - ${formatCurrency(quote.total_amount)}`,
+        meta: formatCreatedAt(quote.created_at),
+        href: `/admin/customers/${quote.customer_id}`,
+        actionLabel: "View customer",
+      };
+    });
+
+  const recentOrders: RecentActivityItem[] = sortByNewest(orders)
+    .slice(0, 4)
+    .map((order) => {
+      const customer = customersById.get(order.customer_id);
+
+      return {
+        id: `order-${order.id}`,
+        title: customer?.company_name ?? customer?.name ?? `Customer #${order.customer_id}`,
+        subtitle: `${orderStatusLabels[order.status as (typeof orderStatuses)[number]]} order`,
+        meta: formatCreatedAt(order.created_at),
+        href: `/admin/customers/${order.customer_id}`,
+        actionLabel: "View customer",
+      };
+    });
+
+  const recentSections = [
+    {
+      title: "Recent Enquiries",
+      description: "Newest customer requests that may need a response.",
+      href: "/admin/enquiries",
+      openLabel: "Open enquiries",
+      items: recentEnquiries,
+    },
+    {
+      title: "Recent Quotes",
+      description: "Latest quotations sent or updated by the team.",
+      href: "/admin/quotes",
+      openLabel: "Open quotes",
+      items: recentQuotes,
+    },
+    {
+      title: "Recent Orders",
+      description: "Most recent order activity across production and delivery.",
+      href: "/admin/orders",
+      openLabel: "Open orders",
+      items: recentOrders,
+    },
+  ];
+
+  
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#f1f5f9_100%)] px-6 py-12 text-slate-900">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -314,6 +435,73 @@ export default async function AdminDashboardPage() {
               </div>
             );
           })}
+        </section>
+        <section className="grid gap-6 xl:grid-cols-3">
+          {recentSections.map((section) => (
+            <div
+              key={section.title}
+              className="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+                    Recent Activity
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">
+                    {section.title}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {section.description}
+                  </p>
+                </div>
+                <Link
+                  href={section.href}
+                  className="text-sm font-semibold text-amber-700 transition hover:text-amber-800"
+                >
+                  Open
+                </Link>
+              </div>
+              <div className="mt-6 space-y-3">
+                {section.items.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="block rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:border-amber-200 hover:bg-white hover:shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-semibold text-slate-950">
+                          {item.title}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          {item.subtitle}
+                        </p>
+                        <p className="mt-2 text-xs font-medium tracking-[0.08em] text-slate-400 uppercase">
+                          {item.meta}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-sm font-semibold text-amber-700">
+                        {item.actionLabel}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+                {section.items.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-4 text-sm text-slate-500">
+                    Nothing here yet.
+                  </div>
+                ) : null}
+              </div>
+              <div className="mt-4">
+                <Link
+                  href={section.href}
+                  className="text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+                >
+                  {section.openLabel}
+                </Link>
+              </div>
+            </div>
+          ))}
         </section>
         <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {adminSections.map((section) => (

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 type CustomerDetailPageProps = {
     params: Promise <{
@@ -51,7 +52,7 @@ export default async function CustomerDetailPage({
 }: CustomerDetailPageProps) {
     const { id } = await params; 
 
-    const customerResponse = await fetch(`http://127.0.0.1:8000/customers/${id}`, {
+    const customerResponse = await fetch(apiUrl(`/customers/${id}`), {
         cache: "no-store", // Ensures that fresh data is always fetched, instead of using outdated data.
     });
 
@@ -62,13 +63,13 @@ export default async function CustomerDetailPage({
     const customer: Customer = await customerResponse.json(); 
 
     const [enquiriesResponse, quotesResponse, ordersResponse] = await Promise.all([ // Promise.all changes sequential fetching to starting all 3 requests at the same time.
-        fetch("http://127.0.0.1:8000/enquiries", {
+        fetch(apiUrl("/enquiries"), {
             cache: "no-store",
         }),
-        fetch("http://127.0.0.1:8000/quotes", {
+        fetch(apiUrl("/quotes"), {
             cache: "no-store",
         }),
-        fetch("http://127.0.0.1:8000/orders", {
+        fetch(apiUrl("/orders"), {
             cache: "no-store",
         }),
     ]);

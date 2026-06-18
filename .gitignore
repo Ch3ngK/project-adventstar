@@ -1,0 +1,10 @@
+.env
+.env.*
+
+__pycache__/
+*.py[cod]
+
+backend/.venv/
+frontend/adventstar/.next/
+frontend/adventstar/node_modules/
+

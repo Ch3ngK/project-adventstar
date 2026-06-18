@@ -56,7 +56,7 @@ export default function AdminEnquiriesPage() {
     useEffect(() => {
         async function loadEnquiries() {
             try {
-                const response = await fetch("http://127.0.0.1:8000/enquiries");
+                const response = await fetch("/api/admin/enquiries");
                 if (!response.ok) {
                     throw new Error("Failed to fetch enquiries."); 
                 }
@@ -78,7 +78,7 @@ export default function AdminEnquiriesPage() {
         try {
             setUpdatingEnquiryId(enquiryId);
             setErrorMessage("");
-            const response = await fetch(`http://127.0.0.1:8000/enquiries/${enquiryId}/status`,
+            const response = await fetch(`/api/admin/enquiries/${enquiryId}/status`,
                 {
                     method: "PATCH",
                     headers: {
@@ -119,7 +119,7 @@ export default function AdminEnquiriesPage() {
             setDeletingEnquiryId(enquiryId);
             setErrorMessage("");
 
-            const response = await fetch(`http://127.0.0.1:8000/enquiries/${enquiryId}`, {
+            const response = await fetch(`/api/admin/enquiries/${enquiryId}`, {
                 method: "DELETE",
             });
 
@@ -163,7 +163,7 @@ export default function AdminEnquiriesPage() {
             setIsCreatingQuote(true); 
             setErrorMessage(""); 
 
-            const response = await fetch("http://127.0.0.1:8000/quotes", {
+            const response = await fetch("/api/admin/quotes", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
