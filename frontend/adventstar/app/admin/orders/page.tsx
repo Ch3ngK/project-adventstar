@@ -63,8 +63,8 @@ export default function OrdersPage() {
     useEffect(() => {
         async function loadOrders() {
             try {
-                const response = await fetch(apiUrl("/orders"));
-                const customerResponse = await fetch(apiUrl("/customers"));
+                const response = await fetch("/api/admin/orders");
+                const customerResponse = await fetch("/api/admin/customers");
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch orders.");

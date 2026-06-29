@@ -31,7 +31,7 @@ export default function CustomersPage() {
   useEffect(() => {
     async function loadCustomers() {
       try {
-        const response = await fetch(apiUrl("/customers"));
+        const response = await fetch("api/admin/customers");
 
         if (!response.ok) {
           throw new Error("Failed to fetch customers.");
