@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 type ChatRequest = {
     message: string;
+    history?: { role: "user" | "assistant"; content: string }[];
 };
 
 function shouldShowEnquiryLink(message: string) {
@@ -43,7 +44,10 @@ export async function POST(request: Request) {
         }
 
         const client = new OpenAI({ apiKey });
-
+        const input: { role: "user" | "assistant"; content: string }[] = [
+            ...(body.history ?? []),
+            { role: "user", content: body.message },
+        ];
         const response = await client.responses.create({
             model: "gpt-5.5",
             instructions: `
@@ -87,7 +91,7 @@ export async function POST(request: Request) {
                 If the user asks for a quotation, explain that pricing depends on details such as quantity, garment type, sizes, materials, customization, and timeline. 
                 Ask them to submit an enquiry with those details so the team can follow up properly. 
             `,
-            input: body.message
+            input,
         });
 
         const links = shouldShowEnquiryLink(body.message)

@@ -49,6 +49,10 @@ export default function ChatBot() {
         },
         body: JSON.stringify({
           message: userText,
+          history: messages.map((m) => ({
+            role: m.role === "user" ? "user" : "assistant",
+            content: m.text, 
+          })),
         }),
       });
 
