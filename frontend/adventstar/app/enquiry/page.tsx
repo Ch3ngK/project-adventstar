@@ -76,7 +76,7 @@ export default function EnquiryPage() {
     }
 
      return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,_#fffaf0_0%,_#f8f3e8_55%,_#efe2cc_100%)] px-6 py-16 text-slate-900">
+    <main className="min-h-screen bg-[#f5f7fa] px-6 py-16 text-slate-900">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <Link
@@ -90,7 +90,7 @@ export default function EnquiryPage() {
         <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
           <section className="space-y-6">
             <div className="space-y-4">
-              <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
+              <p className="text-sm font-semibold tracking-[0.18em] text-[#10284a] uppercase">
                 Enquiry Form
               </p>
               <h1 className="font-serif text-5xl font-semibold text-slate-950">
@@ -103,7 +103,7 @@ export default function EnquiryPage() {
             </div>
 
             <div className="rounded-[2rem] border border-slate-200/80 bg-slate-950 p-7 text-white shadow-xl shadow-slate-900/10">
-              <p className="text-sm font-semibold tracking-[0.18em] text-amber-300 uppercase">
+              <p className="text-sm font-semibold tracking-[0.18em] text-emerald-400 uppercase">
                 Helpful details to include
               </p>
               <ul className="mt-5 space-y-3 text-sm leading-7 text-slate-200">
@@ -154,7 +154,7 @@ export default function EnquiryPage() {
                       onChange={handleChange}
                       required
                       placeholder="e.g. Ms Tan"
-                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-amber-500"
+                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#10284a]"
                     />
                   </div>
 
@@ -173,7 +173,7 @@ export default function EnquiryPage() {
                       onChange={handleChange}
                       required
                       placeholder="name@school.edu.sg"
-                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-amber-500"
+                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#10284a]"
                     />
                   </div>
 
@@ -192,7 +192,7 @@ export default function EnquiryPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="e.g. 9123 4567"
-                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-amber-500"
+                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#10284a]"
                     />
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function EnquiryPage() {
                     onChange={handleChange}
                     required
                     placeholder="e.g. Riverside Secondary School"
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-amber-500"
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#10284a]"
                   />
                 </div>
               </section>
@@ -257,7 +257,7 @@ export default function EnquiryPage() {
                     required
                     rows={8}
                     placeholder="e.g. 120 PE shirts and 120 PE shorts for Primary 4 students, navy and white, with school crest on the chest. Needed before 5 August."
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-amber-500"
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#10284a]"
                   />
                 </div>
               </section>
@@ -267,7 +267,7 @@ export default function EnquiryPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-full bg-slate-950 px-7 py-4 text-sm font-semibold tracking-wide text-white shadow-lg shadow-slate-950/20 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-full bg-[#10284a] px-7 py-4 text-sm font-semibold tracking-wide text-white shadow-lg shadow-slate-950/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? "Submitting..." : "Submit Enquiry"}
               </button>
