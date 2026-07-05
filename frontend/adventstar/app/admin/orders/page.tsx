@@ -2,7 +2,6 @@
 
 import { useDeferredValue, useEffect, useState } from "react";
 import Link from "next/link";
-import { apiUrl } from "@/lib/api";
 
 const statusOptions = [
     "pending",
@@ -96,7 +95,7 @@ export default function OrdersPage() {
             setErrorMessage("");
 
             const response = await fetch(
-                apiUrl(`/orders/${orderId}/status`),
+                `/api/admin/orders/${orderId}/status`,
                 {
                     method: "PATCH",
                     headers: {
@@ -137,7 +136,7 @@ export default function OrdersPage() {
             setDeletingOrderId(orderId);
             setErrorMessage(""); 
 
-            const response = await fetch(apiUrl(`/orders/${orderId}`), 
+            const response = await fetch(`/api/admin/orders/${orderId}`, 
                 {
                     method: "DELETE",
                 }

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { apiUrl } from "@/lib/api";
 
 type Customer = {
   id: number;
@@ -31,7 +30,7 @@ export default function CustomersPage() {
   useEffect(() => {
     async function loadCustomers() {
       try {
-        const response = await fetch("api/admin/customers");
+        const response = await fetch("/api/admin/customers");
 
         if (!response.ok) {
           throw new Error("Failed to fetch customers.");

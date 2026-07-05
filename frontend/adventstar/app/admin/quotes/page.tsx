@@ -127,7 +127,7 @@ export default function QuotesPage() {
             setErrorMessage("");
 
             const response = await fetch(
-                ("/api/admin/quotes/${quoteId}/status"),
+                (`/api/admin/quotes/${quoteId}/status`),
                 {
                     method: "PATCH",
                     headers: {
@@ -168,7 +168,7 @@ export default function QuotesPage() {
             setDeletingQuoteId(quoteId);
             setErrorMessage("");
 
-            const response = await fetch("/api/admin/quotes/${quoteId}", {
+            const response = await fetch(`/api/admin/quotes/${quoteId}`, {
                 method: "DELETE",
             });
 
