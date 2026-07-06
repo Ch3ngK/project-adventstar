@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 type ChatRequest = {
     message: string;
@@ -20,7 +22,25 @@ function shouldShowEnquiryLink(message: string) {
     );
 }
 
+function getClientIp(request: Request): string {
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    return forwardedFor?.split(",")[0]?.trim() ?? "unknown";
+}
+
+const ratelimit = new Ratelimit({
+    redis: Redis.fromEnv(),
+    limiter: Ratelimit.slidingWindow(10, "60 s"),
+});
+
 export async function POST(request: Request) {
+    const ip = getClientIp(request);
+    const { success } = await ratelimit.limit(ip);
+    if (!success) {
+        return NextResponse.json(
+            { reply: "You're sending messages too quickly. Please wait a moment and try again."},
+            { status: 429 }
+        );
+    }
     try {
         const body = (await request.json()) as ChatRequest;
 
@@ -48,7 +68,7 @@ export async function POST(request: Request) {
             ...(body.history ?? []),
             { role: "user", content: body.message },
         ];
-        const response = await client.responses.create({
+        const openaiStream = await client.responses.create({
             model: "gpt-5.5",
             instructions: `
                 You are the Advent Star website assistant.
@@ -92,16 +112,35 @@ export async function POST(request: Request) {
                 Ask them to submit an enquiry with those details so the team can follow up properly. 
             `,
             input,
+            stream: true,
         });
 
         const links = shouldShowEnquiryLink(body.message)
             ? [{ label: "Start Enquiry", href: "/enquiry" }]
             : undefined; 
+        const encoder = new TextEncoder();
 
-        return NextResponse.json({
-            reply: response.output_text,
-            links, 
+        const readableStream = new ReadableStream({
+            async start(controller) {
+                try {
+                    for await (const event of openaiStream) {
+                        if (event.type === "response.output_text.delta") {
+                            controller.enqueue(encoder.encode(event.delta));
+                        }
+                    }
+                    controller.close();
+                } catch (err) {
+                    controller.error(err);
+                }
+            },
         });
+
+        return new NextResponse(readableStream, {
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "X-Chat-Links": encodeURIComponent(JSON.stringify(links ?? [])),
+        },
+});
     } catch {
         return NextResponse.json(
             {

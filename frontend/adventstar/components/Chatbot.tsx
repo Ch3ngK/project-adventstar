@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ChatLink = {
   label: string;
@@ -19,19 +19,36 @@ type ChatResponse = {
   links?: ChatLink[]
 }
 
+const SUGGESTIONS = [
+  "I need a quote",
+  "What industries do you serve?",
+  "Embroidery and printing options",
+]
+
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  async function handleSend() {
-    if (!input.trim() || isLoading ) {
+
+  // useRef creates a react object with this shape:
+  //
+  // { 
+  //    current: null    
+  // }
+  // current refers to what that ref is currently pointing to
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function handleSend(overrideText?: string) {
+    const userText = (overrideText ?? input).trim();
+
+    if (!userText || isLoading ) {
       return;
     }
-
-    const userText = input.trim();
-
     const userMessage: Message = {
       role: "user",
       text: userText,
@@ -56,26 +73,40 @@ export default function ChatBot() {
         }),
       });
 
-      if (!response.ok) {
+      if (!response.ok || !response.body) {
         throw new Error("Failed to get chatbot reply.");
       }
+      const linksHeader = response.headers.get("X-Chat-Links");
+      const links = linksHeader
+          ? (JSON.parse(decodeURIComponent(linksHeader)) as ChatLink[])
+          : undefined;
       
-      const data: ChatResponse = await response.json();
+      setMessages((current) => [...current, { role: "bot", text: "" , links }])
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      const botReply: Message = {
-        role: "bot",
-        text: data.reply,
-        links: data.links, 
-      };
+        const chunk = decoder.decode(value, { stream: true });
 
-      setMessages((currentMessages) => [...currentMessages, botReply]);
+        setMessages((current) => {
+            const updated = [...current];
+            const last = updated[updated.length - 1];
+            updated[updated.length - 1] = { ...last, text: last.text + chunk };
+            return updated;
+        });
+    }
     } catch {
-      const botReply: Message = {
-        role: "bot",
-        text: "Sorry, I'm having trouble right now.",
-        links: [{ label: "Go to Enquiry Form", href:"/enquiry" }],
-      }
-      setMessages((currentMessages) => [...currentMessages, botReply]);
+        setMessages((current) => [
+            ...current,
+            {
+                role: "bot",
+                text: "Sorry, I'm having trouble right now.",
+                links: [{ label: "Go to Enquiry Form", href: "/enquiry" }],
+            },
+        ]);
     } finally {
       setIsLoading(false);
     }
@@ -94,34 +125,50 @@ export default function ChatBot() {
 
           <div className="mt-4 max-h-72 space-y-3 overflow-y-auto">
             {messages.length === 0 ? (
-              <p className="rounded-2xl bg-slate-100 p-3 text-sm text-slate-600">
-                Hi! How can I help you today?
-              </p>
-            ) : (
-              messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={
-                    message.role === "user"
-                      ? "ml-auto max-w-[85%] rounded-2xl bg-slate-900 p-3 text-sm text-white"
-                      : "mr-auto max-w-[85%] rounded-2xl bg-slate-100 p-3 text-sm text-slate-700"
-                  }
-                >
-                  <p>{message.text}</p>
-
-                  {message.links?.map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      className="mt-2 block font-semibold underline"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
+              <div className="space-y-2">
+                <p className="rounded-2xl bg-slate-100 p-3 text-sm text-slate-600">
+                  Hi! How can I help you today?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {SUGGESTIONS.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => handleSend(suggestion)}
+                          className="rounded-full border border-slate-300 px-3 py-1 text-xs
+                          text-slate-700 hover:border-slate-900 hover:text-slate-900"
+                        >
+                          {suggestion}
+                        </button>
+                    ))}
                 </div>
-              ))
-            )}
-          </div>
+              </div>
+              ) : (
+                messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={
+                      message.role === "user"
+                        ? "ml-auto max-w-[85%] rounded-2xl bg-slate-900 p-3 text-sm text-white"
+                        : "mr-auto max-w-[85%] rounded-2xl bg-slate-100 p-3 text-sm text-slate-700"
+                    }
+                  >
+                    <p>{message.text}</p>
+
+                    {message.links?.map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        className="mt-2 block font-semibold underline"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
           <div className="mt-4 flex gap-2">
             <input
@@ -138,7 +185,7 @@ export default function ChatBot() {
 
             <button
               type="button"
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={isLoading}
               className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
