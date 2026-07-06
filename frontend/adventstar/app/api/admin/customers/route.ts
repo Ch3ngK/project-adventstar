@@ -22,6 +22,6 @@ export async function GET() {
     const data = await backendResponse.json();
 
     return NextResponse.json(data, {
-        status: backendResponse.status,
+        status: backendResponse.status
     });
 }
