@@ -3,6 +3,7 @@ from app.schemas.customer import CustomerCreate, CustomerResponse
 from app.schemas.quote import QuoteCreate, QuoteResponse, QuoteStatusUpdate
 from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 from app.schemas.auth import LoginRequest, TokenResponse
+from app.schemas.quote_draft import QuoteDraftItem, QuoteDraft, QuoteDraftResponse
 
 __all__ = ["EnquiryCreate", 
            "EnquiryResponse", 
@@ -16,5 +17,8 @@ __all__ = ["EnquiryCreate",
            "OrderResponse",
            "OrderStatusUpdate",
            "LoginRequest",
-           "TokenResponse"
+           "TokenResponse",
+           "QuoteDraftItem",
+           "QuoteDraft",
+           "QuoteDraftResponse"
            ]

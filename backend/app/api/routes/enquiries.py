@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user
 from app.db.session import get_db
-from app.models import Customer, Enquiry, User
-from app.schemas import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate
+from app.models import Customer, Enquiry, User, QuoteDraftRecord
+from app.schemas import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate, QuoteDraftResponse, QuoteDraft
+from app.services.quote_agent import draft_quote
 
 router = APIRouter(prefix="/enquiries", tags=["enquiries"])
 
@@ -74,6 +75,49 @@ def get_enquiries(
 ) -> list[Enquiry]:
     return db.query(Enquiry).all()
 
+@router.post("/{enquiry_id}/draft-quote", response_model=QuoteDraftResponse)
+def create_quote_draft(
+    enquiry_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> QuoteDraft:
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+
+    if enquiry is None: 
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+    
+    draft = draft_quote(enquiry)
+
+    draft_record = QuoteDraftRecord(
+        enquiry_id=enquiry_id, 
+        items=[item.model_dump() for item in draft.items], # Converts draft.items Pydantic schema objects to normal data(dict)
+        suggested_notes=draft.suggested_notes,
+        open_questions=draft.open_questions, 
+    )
+
+    db.add(draft_record)
+    db.commit()
+    db.refresh(draft_record)
+
+    return draft_record
+
+@router.get("/{enquiry_id}/draft-quote", response_model=list[QuoteDraftResponse])
+def get_quote_drafts(
+    enquiry_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> list[QuoteDraftRecord]:
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+
+    if enquiry is None: 
+        raise HTTPException(status_code=404, detail="Enquiry not found.")
+    
+    return (
+        db.query(QuoteDraftRecord)
+        .filter(QuoteDraftRecord.enquiry_id == enquiry.id)
+        .order_by(QuoteDraftRecord.created_at.desc())
+        .all()
+    )
 
 @router.get("/{enquiry_id}", response_model=EnquiryResponse)
 def get_enquiry(
@@ -87,6 +131,8 @@ def get_enquiry(
         raise HTTPException(status_code=404, detail="Enquiry not found")
 
     return enquiry
+
+
 
 
 @router.patch("/{enquiry_id}/status", response_model=EnquiryResponse)

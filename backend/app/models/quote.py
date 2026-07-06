@@ -14,4 +14,3 @@ class Quote(Base):
     total_amount = Column(Numeric(10,2), nullable=False)
     notes = Column(Text, nullable=True) # Can be string too, but Text is better for longer free-form text
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
