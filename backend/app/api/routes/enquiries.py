@@ -5,7 +5,7 @@ from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models import Customer, Enquiry, User, QuoteDraftRecord
 from app.schemas import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate, QuoteDraftResponse, QuoteDraft
-from app.services.quote_agent import draft_quote
+from app.services.quote_agent import QuoteDraftGenerationError, draft_quote
 
 router = APIRouter(prefix="/enquiries", tags=["enquiries"])
 
@@ -86,7 +86,13 @@ def create_quote_draft(
     if enquiry is None: 
         raise HTTPException(status_code=404, detail="Enquiry not found")
     
-    draft = draft_quote(enquiry)
+    try:
+        draft = draft_quote(enquiry)
+    except QuoteDraftGenerationError: 
+        raise HTTPException(
+            status_code=502, 
+            detail="Unable to generate quote draft. Please try again.",
+        )
 
     draft_record = QuoteDraftRecord(
         enquiry_id=enquiry_id, 

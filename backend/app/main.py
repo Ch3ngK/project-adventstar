@@ -8,11 +8,8 @@ from app.api.routes.quotes import router as quotes_router
 from app.api.routes.orders import router as orders_router
 from app.api.routes.auth import router as auth_router
 from app.core.config import settings
-from app.db.base import Base
 from app.db.session import engine
 from app.models import Enquiry  # noqa: F401
-
-Base.metadata.create_all(bind=engine)
 
 
 def create_application() -> FastAPI:
