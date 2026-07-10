@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
 type CustomerDetailPageProps = {
     params: Promise <{
         id: string; 
@@ -51,9 +54,18 @@ export default async function CustomerDetailPage({
     params,
 }: CustomerDetailPageProps) {
     const { id } = await params; 
+    const cookieStore = await cookies(); 
+    const token = cookieStore.get("adventstar_token")?.value; 
+
+    if (!token) {
+        redirect("/admin/token");
+    }
+
+    const authHeaders = { Authorization: `Bearer ${token}` };
 
     const customerResponse = await fetch(apiUrl(`/customers/${id}`), {
         cache: "no-store", // Ensures that fresh data is always fetched, instead of using outdated data.
+        headers: authHeaders,
     });
 
     if (!customerResponse.ok) {
@@ -65,12 +77,15 @@ export default async function CustomerDetailPage({
     const [enquiriesResponse, quotesResponse, ordersResponse] = await Promise.all([ // Promise.all changes sequential fetching to starting all 3 requests at the same time.
         fetch(apiUrl("/enquiries"), {
             cache: "no-store",
+            headers: authHeaders, 
         }),
         fetch(apiUrl("/quotes"), {
             cache: "no-store",
+            headers: authHeaders, 
         }),
         fetch(apiUrl("/orders"), {
             cache: "no-store",
+            headers: authHeaders, 
         }),
     ]);
 

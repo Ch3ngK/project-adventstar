@@ -15,6 +15,20 @@ type Enquiry = {
     created_at: string; 
 }; 
 
+type QuoteDraftItem = {
+  description: string;
+  quantity: number | null; 
+}
+
+type QuoteDraftResponse = {
+  id: number; 
+  enquiry_id: number;
+  items: QuoteDraftItem[];
+  suggested_notes: string;
+  open_questions: string[];
+  created_at: string; 
+}
+
 const statusOptions = ["new", "contacted", "quoted", "closed"] as const;
 
 const statusLabelMap: Record<(typeof statusOptions)[number], string> = {
@@ -49,6 +63,10 @@ export default function AdminEnquiriesPage() {
     const [deletingEnquiryId, setDeletingEnquiryId] = useState<number | null>(null);
     const [quoteFormEnquiry, setQuoteFormEnquiry] = useState<Enquiry | null>(null);
     const [quoteAmount, setQuoteAmount] = useState("");
+    const [generatingDraftId, setGeneratingDraftId] = useState<number | null>(null); 
+    const [draftsByEnquiryId, setDraftsByEnquiryId] = useState<Record<number, QuoteDraftResponse[]>>({}); // Cache that holds each enquiry's list of generated drafts
+    const [viewingDraftsEnquiryId, setViewingDraftsEnquiryId] = useState<number | null>(null); 
+    const [loadingDraftsEnquiryId, setLoadingDraftsEnquiryId] = useState<number | null>(null); 
     const [quoteNotes, setQuoteNotes] = useState("");
     const [isCreatingQuote, setIsCreatingQuote] = useState(false);
     const deferredSearchTerm = useDeferredValue(searchTerm); //Delayed version of searchTerm for better UI performance
@@ -104,6 +122,66 @@ export default function AdminEnquiriesPage() {
         } finally {
             setUpdatingEnquiryId(null);
         }
+    }
+
+    async function handleGenerateDraft(enquiryId: number) {
+        try {
+          setGeneratingDraftId(enquiryId);
+          setErrorMessage("");
+          const response = await fetch(`/api/admin/enquiries/${enquiryId}/draft-quote`, {
+              method: "POST",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to generate draft");
+          }
+
+          const newDraft: QuoteDraftResponse = await response.json();
+
+          setDraftsByEnquiryId((current) => ({
+              ...current, 
+              [enquiryId]: [newDraft, ...(current[enquiryId] ?? [])],
+          }));
+        } catch {
+          setErrorMessage("Unable to generate quote draft.");
+        } finally {
+          setGeneratingDraftId(null);
+        }
+    }
+
+    async function handleToggleDrafts(enquiryId: number) {
+      if (viewingDraftsEnquiryId === enquiryId) {
+        setViewingDraftsEnquiryId(null);
+        return; 
+      }
+
+      setViewingDraftsEnquiryId(enquiryId);
+
+      if (draftsByEnquiryId[enquiryId]) {
+        return;
+      }
+
+      try {
+        setLoadingDraftsEnquiryId(enquiryId);
+        setErrorMessage("");
+
+        const response = await fetch(`/api/admin/enquiries/${enquiryId}/draft-quote`);
+
+        if (!response.ok) {
+          throw new Error("Failed to load drafts"); 
+        }
+
+        const drafts: QuoteDraftResponse[] = await response.json();
+
+        setDraftsByEnquiryId((current) => ({
+          ...current, 
+          [enquiryId]: drafts, 
+        }));
+      } catch {
+        setErrorMessage("Unable to load quote drafts.");
+      } finally {
+        setLoadingDraftsEnquiryId(null); 
+      }
     }
 
     async function handleDeleteEnquiry(enquiryId: number) {
@@ -377,6 +455,7 @@ export default function AdminEnquiriesPage() {
           ) : (
             visibleEnquiries.map((enquiry) => {
               const statusKey = enquiry.status as (typeof statusOptions)[number];
+              const enquiryDrafts = draftsByEnquiryId[enquiry.id] ?? [];
 
               return (
                 <article
@@ -473,7 +552,28 @@ export default function AdminEnquiriesPage() {
                         >
                           Create Quote
                       </button>
-                    </div>
+                      <button
+                        type="button" 
+                        onClick={() => handleGenerateDraft(enquiry.id)}
+                        disabled={generatingDraftId === enquiry.id}
+                        className="inline-flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {generatingDraftId === enquiry.id ? "Generating..." : "Generate Quote Draft"}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => handleToggleDrafts(enquiry.id)}
+                        disabled={loadingDraftsEnquiryId === enquiry.id}
+                        className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {loadingDraftsEnquiryId === enquiry.id
+                          ? "Loading..."
+                          : viewingDraftsEnquiryId === enquiry.id
+                          ? "Hide Drafts"
+                          : "View Drafts"
+                        }
+                      </button>
+                      </div>
                   </div>
 
                   <div className="mt-5 rounded-[1.5rem] bg-slate-50 p-5">
@@ -484,6 +584,55 @@ export default function AdminEnquiriesPage() {
                       {enquiry.message}
                     </p>
                   </div>
+
+                   {viewingDraftsEnquiryId === enquiry.id ? (
+                    <div className="mt-5 space-y-4">
+                      {enquiryDrafts.length === 0 ? (
+                        <p className="text-sm text-slate-500">
+                          {loadingDraftsEnquiryId === enquiry.id
+                            ? "Loading drafts..."
+                            : "No quote drafts yet. Generate one above."}
+                        </p>
+                      ) : (
+                        enquiryDrafts.map((draft) => (
+                          <div
+                            key={draft.id}
+                            className="rounded-[1.5rem] border border-amber-200 bg-amber-50/60 p-5"
+                          >
+                            <p className="text-xs font-semibold tracking-[0.16em] text-amber-700 uppercase">
+                              Draft — {formatSubmittedAt(draft.created_at)}
+                            </p>
+
+                            <ul className="mt-3 space-y-1 text-sm text-slate-700">
+                              {draft.items.map((item, index) => (
+                                <li key={index}>
+                                  {item.description}
+                                  {item.quantity ? ` — qty ${item.quantity}` : ""}
+                                </li>
+                              ))}
+                            </ul>
+
+                            <p className="mt-3 text-sm leading-6 text-slate-700">
+                              {draft.suggested_notes}
+                            </p>
+
+                            {draft.open_questions.length > 0 ? (
+                              <div className="mt-3">
+                                <p className="text-xs font-semibold text-amber-800 uppercase">
+                                  Open Questions
+                                </p>
+                                <ul className="mt-1 list-disc pl-5 text-sm text-slate-700">
+                                  {draft.open_questions.map((question, index) => (
+                                    <li key={index}>{question}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  ) : null}
                 </article>
               );
             })

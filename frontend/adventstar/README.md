@@ -38,4 +38,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Backend 
 
-Run this command on the terminal: .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+Run this command on the terminal: 
+# Windows: 
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+
+# macos:
+.venv/bin/python -m uvicorn app.main:app --reload
+
+# To run virtual environment:
+source .venv/bin/activate
+uvicorn app.main:app --reload --port 8000
