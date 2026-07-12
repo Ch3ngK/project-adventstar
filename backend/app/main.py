@@ -11,9 +11,18 @@ from app.core.config import settings
 from app.db.session import engine
 from app.models import Enquiry  # noqa: F401
 
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+
+from app.core.rate_limit import limiter
 
 def create_application() -> FastAPI:
     app = FastAPI(title="Advent Star Backend")
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, 
+    _rate_limit_exceeded_handler) # Exception handler makes sure a triggered limit returns a clean 429 instead of an unhandled 500.
+    app.add_middleware(SlowAPIMiddleware) # lets slowapi track requests app-wide
 
     app.add_middleware(
         CORSMiddleware,

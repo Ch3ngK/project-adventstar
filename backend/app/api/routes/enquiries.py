@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Request
 from sqlalchemy.orm import Session
 
+from app.core.rate_limit import limiter 
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models import Customer, Enquiry, User, QuoteDraftRecord
@@ -76,8 +77,10 @@ def get_enquiries(
     return db.query(Enquiry).all()
 
 @router.post("/{enquiry_id}/draft-quote", response_model=QuoteDraftResponse)
+@limiter.limit("5/minute")
 def create_quote_draft(
     enquiry_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ) -> QuoteDraft:

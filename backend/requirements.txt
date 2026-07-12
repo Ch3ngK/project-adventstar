@@ -39,4 +39,5 @@ uvicorn==0.47.0
 pytest==8.4.2
 pytest-mock==3.15.1
 alembic==1.14.0
+slowapi==0.1.10
 

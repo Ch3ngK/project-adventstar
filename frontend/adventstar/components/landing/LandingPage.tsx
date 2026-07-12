@@ -125,6 +125,7 @@ const services = [
       "Supply for preschools, primary schools, secondary schools, and institutions that need consistent quality across student cohorts.",
     features: ["Daily uniforms and PE kits", "Reliable repeat orders"],
     image: "/school.png",
+    imagePosition: "object-top",
   },
   {
     num: "02",
@@ -134,6 +135,7 @@ const services = [
       "Professional attire for office teams and client-facing roles where presentation and brand consistency matter.",
     features: ["Branding and embroidery", "Structured quotation support"],
     image: "/corporate.png",
+    imagePosition: "object-top",
   },
   {
     num: "03",
@@ -161,6 +163,7 @@ const services = [
       "Practical garments for logistics, manufacturing, and field teams that need durability and clear fulfilment across large order volumes.",
     features: ["Built for daily use", "Bulk production and delivery"],
     image: "/industrial2.png",
+    imagePosition: "object-top",
   },
   {
     num: "06",
@@ -170,6 +173,7 @@ const services = [
       "Structured supply for public agencies and statutory bodies with compliance requirements and well-documented approval processes.",
     features: ["Compliance-ready", "Structured tender support"],
     image: "/teams.png",
+    imagePosition: "object-top",
   },
 ]
 
@@ -373,7 +377,7 @@ export default function LandingPage() {
                       alt={svc.title}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover"
+                      className={`object-cover ${svc.imagePosition ?? "object-center"}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a1929]/90 via-[#0a1929]/30 to-transparent" />
                   </div>

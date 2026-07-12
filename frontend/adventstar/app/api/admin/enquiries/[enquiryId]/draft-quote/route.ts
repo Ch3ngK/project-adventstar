@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { apiUrl } from  "@/lib/api";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { safeLimit } from "@/lib/rate-limit";
 
 type RouteContext = {
     params: Promise<{
@@ -25,6 +26,14 @@ export async function GET(request: Request, context: RouteContext) {
             { status: 401 }
         )
     };
+
+    const { success } = await safeLimit(draftRatelimit, token);
+    if (!success) {
+        return NextResponse.json(
+            { message: "Too many requests. Please wait a moment."},
+            { status: 429 }
+        );
+    }
 
     const { enquiryId } = await context.params;
 
@@ -52,7 +61,7 @@ export async function POST(request: Request, context: RouteContext) {
         );
     }
 
-    const { success } = await draftRatelimit.limit(token); 
+    const { success } = await safeLimit(draftRatelimit, token);
     if (!success) {
         return NextResponse.json(
             { message: "Too many draft requests. Please wait a moment." },

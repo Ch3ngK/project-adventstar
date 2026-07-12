@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 
-from jose import jwt
 from passlib.context import CryptContext
 
 from fastapi import Depends, HTTPException
@@ -12,7 +11,7 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.models import User
 
-SECRET_KEY = settings.secret_key
+SECRET_KEY = settings.secret_key # Private signing key for JWT access tokens
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -39,7 +38,7 @@ def create_access_token(subject: str) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_current_user(
-        token: str = Depends(oauth2_scheme),
+        token: str = Depends(oauth2_scheme), # Extracts the JWT from this request header
         db: Session = Depends(get_db),
 ) -> User: 
     try:

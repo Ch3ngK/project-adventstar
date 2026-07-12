@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { safeLimit } from "@/lib/rate-limit";
 
 type ChatRequest = {
     message: string;
@@ -33,15 +34,16 @@ const ratelimit = new Ratelimit({
 });
 
 export async function POST(request: Request) {
-    const ip = getClientIp(request);
-    const { success } = await ratelimit.limit(ip);
-    if (!success) {
-        return NextResponse.json(
-            { reply: "You're sending messages too quickly. Please wait a moment and try again."},
-            { status: 429 }
-        );
-    }
     try {
+        const ip = getClientIp(request);
+        const { success } = await safeLimit(ratelimit, ip);
+        if (!success) {
+            return NextResponse.json(
+                { reply: "You're sending messages too quickly. Please wait a moment and try again."},
+                { status: 429 }
+            );
+        }
+
         const body = (await request.json()) as ChatRequest;
 
         if (!body.message || !body.message.trim()) {
