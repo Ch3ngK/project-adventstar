@@ -46,5 +46,9 @@ Run this command on the terminal:
 .venv/bin/python -m uvicorn app.main:app --reload
 
 # To run virtual environment:
+1) MacOS
 source .venv/bin/activate
 uvicorn app.main:app --reload --port 8000
+
+2) Windows
+.venv\Scripts\activate.bat
