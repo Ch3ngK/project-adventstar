@@ -126,6 +126,7 @@ const services = [
     features: ["Daily uniforms and PE kits", "Reliable repeat orders"],
     image: "/school.png",
     imagePosition: "object-top",
+    href: "/sectors/school-uniform-programmes",
   },
   {
     num: "02",
@@ -136,6 +137,7 @@ const services = [
     features: ["Branding and embroidery", "Structured quotation support"],
     image: "/corporate.png",
     imagePosition: "object-top",
+    href: "/sectors/corporate-uniform-collections",
   },
   {
     num: "03",
@@ -145,6 +147,7 @@ const services = [
       "Uniforms for hotel, F&B, and service teams that balance comfort, durability, and brand alignment across every front-of-house role.",
     features: ["Custom branding", "Consistent standards"],
     image: "/specialty.png",
+    href: "/sectors/hospitality-and-service-wear",
   },
   {
     num: "04",
@@ -154,6 +157,7 @@ const services = [
       "Practical, easy-care garments for medical and care teams that need reliable supply, consistent standards, and hygienic materials.",
     features: ["Hygienic materials", "Consistent sizing"],
     image: "/medical.png",
+    href: "/sectors/healthcare-and-clinical-wear",
   },
   {
     num: "05",
@@ -164,6 +168,7 @@ const services = [
     features: ["Built for daily use", "Bulk production and delivery"],
     image: "/industrial2.png",
     imagePosition: "object-top",
+    href: "/sectors/industrial-and-operations-wear",
   },
   {
     num: "06",
@@ -174,6 +179,7 @@ const services = [
     features: ["Compliance-ready", "Structured tender support"],
     image: "/teams.png",
     imagePosition: "object-top",
+    href: "/sectors/government-and-public-sector",
   },
 ]
 
@@ -296,7 +302,7 @@ export default function LandingPage() {
           {/* Headline */}
           <h1 className="max-w-[22ch] text-5xl font-semibold leading-[1.07] tracking-tight text-white sm:text-6xl lg:text-[4.75rem]">
             <BlurText
-              text="Professional uniform supply for organisations that value clarity."
+              text="Professional uniform supply for businesses."
               immediate
               wordDelay={40}
             />
@@ -391,7 +397,11 @@ export default function LandingPage() {
           <div className="grid gap-px overflow-hidden rounded-[1.5rem] bg-slate-200 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((svc, i) => (
               <ScrollReveal key={svc.sector} delay={i * 55}>
-                <article className="group relative h-80 overflow-hidden bg-[#0d1f3c]">
+                <Link
+                  href={svc.href}
+                  aria-label={`View ${svc.title} catalog`}
+                  className="group relative block h-80 overflow-hidden bg-[#0d1f3c] focus-visible:z-10"
+                >
 
                   {/* Image layer — fades out on hover */}
                   <div className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-0">
@@ -434,9 +444,15 @@ export default function LandingPage() {
                         </li>
                       ))}
                     </ul>
+                    <span className="mt-4 inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white">
+                      View catalog
+                      <svg aria-hidden viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+                      </svg>
+                    </span>
                   </div>
 
-                </article>
+                </Link>
               </ScrollReveal>
             ))}
           </div>
