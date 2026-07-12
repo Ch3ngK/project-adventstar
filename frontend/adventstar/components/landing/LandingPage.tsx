@@ -3,8 +3,8 @@ import Link from "next/link"
 import Header from "./Header"
 import BlurText from "./BlurText"
 import ScrollReveal from "./ScrollReveal"
-import ContainerScroll from "./ContainerScroll"
 import AnimatedCounter from "./AnimatedCounter"
+import UniformScrollShowcase from "./UniformScrollShowcase"
 
 /* ─── Footer icons ──────────────────────────────────────────────────────── */
 
@@ -201,6 +201,29 @@ const contactDetails = [
   { label: "GST Registration", value: "GST Reg No 201510303R", Icon: BadgeIcon },
   { label: "Phone", value: "+65 9766 8748", Icon: PhoneIcon },
   { label: "Email", value: "sales@advent-star.com", Icon: MailIcon },
+]
+
+const uniformStrengths = [
+  {
+    title: "Premium fabric sourcing",
+    description:
+      "Every uniform starts with breathable, durable fabric chosen for comfort through long wear days.",
+  },
+  {
+    title: "Precision tailoring",
+    description:
+      "Consistent cutting and sizing keep fit uniform across every batch, no matter the order size.",
+  },
+  {
+    title: "Reinforced stitching",
+    description:
+      "Seams and stress points are reinforced to hold up to daily wear, washing, and repeat use.",
+  },
+  {
+    title: "Fade-resistant finishing",
+    description:
+      "Colourfast dyeing and finishing keep uniforms looking sharp wash after wash.",
+  },
 ]
 
 const stats = [
@@ -421,36 +444,27 @@ export default function LandingPage() {
       </section>
 
       {/* ── MANUFACTURING SHOWCASE ────────────────────────────────────────── */}
-      <section className="overflow-hidden bg-white py-24 lg:py-36">
+      <section className="bg-white py-24 lg:py-28">
         <div className="mx-auto max-w-6xl px-6 lg:px-10">
           <ScrollReveal className="mx-auto mb-16 max-w-2xl">
             <p className="mb-4 text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
               Manufacturing excellence
             </p>
             <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-              From brief to fulfilment, end to end.
+              Built for quality, at every stage.
             </h2>
             <p className="mt-4 text-lg leading-8 text-slate-600">
-              Our production flow keeps requirements, approvals, and fulfilment aligned so larger
-              orders stay organised from start to finish.
+              Keep scrolling — the uniform comes together in stages, each one built on a quality
+              standard that carries through to the finished garment.
             </p>
           </ScrollReveal>
-
-          <ContainerScroll src="/machine1.png" alt="Advent Star manufacturing and production facility" />
-
-          <ScrollReveal className="mt-10 flex flex-wrap justify-center gap-8" delay={200}>
-            {["Requirements review", "Quotation & spec", "Sampling & approval", "Production & delivery"].map(
-              (step, i) => (
-                <div key={step} className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#10284a] text-xs font-bold text-white">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-sm font-medium text-slate-600">{step}</span>
-                </div>
-              ),
-            )}
-          </ScrollReveal>
         </div>
+
+        <UniformScrollShowcase
+          src="/uniform-animation.mp4"
+          poster="/uniform-animation-poster.jpg"
+          strengths={uniformStrengths}
+        />
       </section>
 
       {/* ── PROCESS ───────────────────────────────────────────────────────── */}
