@@ -1,7 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useState } from "react"; 
-import Link from "next/link";
+import { useDeferredValue, useEffect, useState } from "react";
 
 type Enquiry = {
     id: number; 
@@ -306,10 +305,7 @@ export default function AdminEnquiriesPage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
-              Admin Dashboard
-            </p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-950">
+            <h1 className="text-4xl font-semibold text-slate-950">
               Customer Enquiries
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -373,7 +369,7 @@ export default function AdminEnquiriesPage() {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search by contact, company, email, or message"
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-500"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#10284a]"
               />
             </div>
 
@@ -390,7 +386,7 @@ export default function AdminEnquiriesPage() {
                 onChange={(event) =>
                   setStatusFilter(event.target.value as "all" | Enquiry["status"])
                 }
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a]"
               >
                 <option value="all">All statuses</option>
                 {statusOptions.map((status) => (
@@ -414,7 +410,7 @@ export default function AdminEnquiriesPage() {
                 onChange={(event) =>
                   setSortOrder(event.target.value as "newest" | "oldest")
                 }
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a]"
               >
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>
@@ -523,7 +519,7 @@ export default function AdminEnquiriesPage() {
                             handleStatusChange(enquiry.id, event.target.value)
                           }
                           disabled={updatingEnquiryId === enquiry.id}
-                          className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {statusOptions.map((status) => (
                             <option key={status} value={status}>
@@ -548,7 +544,7 @@ export default function AdminEnquiriesPage() {
                       <button
                         type="button"
                         onClick={() => handleCreateQuote(enquiry)}
-                        className="inline-flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800"
+                        className="inline-flex items-center justify-center rounded-full border border-[#10284a]/25 bg-[#10284a]/5 px-4 py-2 text-sm font-semibold text-[#10284a] transition hover:bg-[#10284a]/10"
                         >
                           Create Quote
                       </button>
@@ -556,7 +552,7 @@ export default function AdminEnquiriesPage() {
                         type="button" 
                         onClick={() => handleGenerateDraft(enquiry.id)}
                         disabled={generatingDraftId === enquiry.id}
-                        className="inline-flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center justify-center rounded-full border border-[#10284a]/25 bg-[#10284a]/5 px-4 py-2 text-sm font-semibold text-[#10284a] transition hover:bg-[#10284a]/10 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {generatingDraftId === enquiry.id ? "Generating..." : "Generate Quote Draft"}
                       </button>
@@ -698,12 +694,6 @@ export default function AdminEnquiriesPage() {
           </div>
         </div>
       ) : null}
-      <Link
-        href="/admin"
-        className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-        >
-          Back to Admin Hub
-      </Link>
     </main>
   );
 }

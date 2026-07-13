@@ -58,7 +58,7 @@ export default async function CustomerDetailPage({
     const token = cookieStore.get("adventstar_token")?.value; 
 
     if (!token) {
-        redirect("/admin/token");
+        redirect("/admin/login");
     }
 
     const authHeaders = { Authorization: `Bearer ${token}` };
@@ -111,10 +111,7 @@ export default async function CustomerDetailPage({
     return (
         <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#f1f5f9_100%)] px-6 py-12 text-slate-900">
             <div className="mx-auto max-w-6xl">
-                <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
-                Admin Dashboard
-                </p>
-                <h1 className="mt-2 text-4xl font-semibold text-slate-950">
+                <h1 className="text-4xl font-semibold text-slate-950">
                 {customer.company_name}
                 </h1>
                 <p className="mt-2 text-sm text-slate-500">
@@ -255,7 +252,7 @@ export default async function CustomerDetailPage({
                 </section>
                 <Link
                     href="/admin/customers"
-                    className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
+                    className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-[#10284a]/30 hover:text-[#10284a]"
                     >
                 Back to Customers
                 </Link>

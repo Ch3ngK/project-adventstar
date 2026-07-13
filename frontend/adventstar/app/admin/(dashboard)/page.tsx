@@ -355,10 +355,7 @@ export default async function AdminDashboardPage() {
     <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#f1f5f9_100%)] px-6 py-12 text-slate-900">
       <div className="mx-auto max-w-7xl space-y-8">
         <header>
-          <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
-            Admin Dashboard
-          </p>
-          <h1 className="mt-2 text-4xl font-semibold text-slate-950">
+          <h1 className="text-4xl font-semibold text-slate-950">
             Advent Star Admin
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -407,7 +404,7 @@ export default async function AdminDashboardPage() {
                   </div>
                   <Link
                     href={section.href}
-                    className="text-sm font-semibold text-amber-700 transition hover:text-amber-800"
+                    className="text-sm font-semibold text-[#10284a] transition hover:text-[#0d1f3c]"
                   >
                     Open
                   </Link>
@@ -456,7 +453,7 @@ export default async function AdminDashboardPage() {
                 </div>
                 <Link
                   href={section.href}
-                  className="text-sm font-semibold text-amber-700 transition hover:text-amber-800"
+                  className="text-sm font-semibold text-[#10284a] transition hover:text-[#0d1f3c]"
                 >
                   Open
                 </Link>
@@ -466,7 +463,7 @@ export default async function AdminDashboardPage() {
                   <Link
                     key={item.id}
                     href={item.href}
-                    className="block rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:border-amber-200 hover:bg-white hover:shadow-sm"
+                    className="block rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:border-[#10284a]/20 hover:bg-white hover:shadow-sm"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -480,7 +477,7 @@ export default async function AdminDashboardPage() {
                           {item.meta}
                         </p>
                       </div>
-                      <span className="shrink-0 text-sm font-semibold text-amber-700">
+                      <span className="shrink-0 text-sm font-semibold text-[#10284a]">
                         {item.actionLabel}
                       </span>
                     </div>
@@ -501,27 +498,6 @@ export default async function AdminDashboardPage() {
                 </Link>
               </div>
             </div>
-          ))}
-        </section>
-        <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {adminSections.map((section) => (
-            <Link
-              key={section.href}
-              href={section.href}
-              className="block rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm transition hover:-translate-y-1 hover:border-amber-200 hover:shadow-md"
-            >
-              <div className="space-y-3">
-                <h2 className="text-2xl font-semibold text-slate-950">
-                  {section.title}
-                </h2>
-                <p className="text-sm leading-7 text-slate-600">
-                  {section.description}
-                </p>
-                <p className="pt-2 text-sm font-semibold text-amber-700">
-                  Open section
-                </p>
-              </div>
-            </Link>
           ))}
         </section>
       </div>

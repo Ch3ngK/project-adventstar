@@ -63,10 +63,7 @@ export default function CustomersPage() {
             <p className="text-sm text-slate-500">Loading customers...</p>
           ) : null}
 
-          <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
-            Admin Dashboard
-          </p>
-          <h1 className="mt-2 text-4xl font-semibold text-slate-950">
+          <h1 className="text-4xl font-semibold text-slate-950">
             Customers
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -88,7 +85,7 @@ export default function CustomersPage() {
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search by company, contact, or email."
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-500"
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#10284a]"
           />
         </section>
 
@@ -109,7 +106,7 @@ export default function CustomersPage() {
               <Link
                 key={customer.id}
                 href={`/admin/customers/${customer.id}`}
-                className="block rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm"
+                className="block rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm transition hover:-translate-y-1 hover:border-[#10284a]/20 hover:shadow-md"
               >
                 <div className="space-y-3">
                   <div>
@@ -152,12 +149,6 @@ export default function CustomersPage() {
             ))}
         </section>
       </div>
-      <Link
-            href="/admin"
-            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-            >
-        Back to Admin Hub
-        </Link>
     </main>
   );
 }
