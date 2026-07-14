@@ -4,9 +4,13 @@ from sqlalchemy.orm import Session
 from app.core.rate_limit import limiter 
 from app.core.security import get_current_user
 from app.db.session import get_db
-from app.models import Customer, Enquiry, User, QuoteDraftRecord
-from app.schemas import EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate, QuoteDraftResponse, QuoteDraft
+from app.models import Customer, Enquiry, User, QuoteDraftRecord, EmailDraftRecord
+from app.schemas import (
+    EnquiryCreate, EnquiryResponse, EnquiryStatusUpdate, 
+    QuoteDraftResponse, QuoteDraft, 
+    EmailDraftResponse, EmailDraft)
 from app.services.quote_agent import QuoteDraftGenerationError, draft_quote
+from app.services.email_agent import EmailDraftGenerationError, draft_enquiry_reply
 
 router = APIRouter(prefix="/enquiries", tags=["enquiries"])
 
@@ -178,3 +182,60 @@ def delete_enquiry(
     db.commit()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{enquiry_id}/draft-email", response_model=EmailDraftResponse)
+@limiter.limit("5/minute")
+def create_email_draft(
+    enquiry_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user)
+) -> EmailDraft:
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+
+    if enquiry is None:
+        raise HTTPException(status_code=404, detail="Enquiry not found.")
+    
+    try:
+        draft = draft_enquiry_reply(enquiry)
+    except EmailDraftGenerationError:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to generate email draft. Please try again.",
+        )
+    
+    draft_record = EmailDraftRecord(
+        kind="reply",
+        enquiry_id=enquiry_id,
+        lead_id=None,
+        subject=draft.subject,
+        body=draft.body,
+        open_questions=draft.open_questions,
+    )
+
+    db.add(draft_record)
+    db.commit()
+    db.refresh(draft_record)
+
+    return draft_record
+
+@router.get("/{enquiry_id}/draft-email", response_model=list[EmailDraftResponse])
+@limiter.limit("5/minute")
+def get_email_drafts(
+    enquiry_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user)
+) -> list[EmailDraftRecord]:
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+    
+    if enquiry is None:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+    
+    return (
+        db.query(EmailDraftRecord)
+        .filter(EmailDraftRecord.enquiry_id == enquiry_id)
+        .order_by(EmailDraftRecord.created_at.desc())
+        .all()
+    )

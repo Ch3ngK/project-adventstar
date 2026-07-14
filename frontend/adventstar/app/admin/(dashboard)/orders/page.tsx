@@ -1,7 +1,6 @@
 "use client";
 
 import { useDeferredValue, useEffect, useState } from "react";
-import Link from "next/link";
 
 const statusOptions = [
     "pending",
@@ -201,13 +200,10 @@ export default function OrdersPage() {
         });
 
     return (
-        <main className="min-h-screen bg-slate-100 px-6 py-8 text-slate-950">
-            <div className="mx-auto max-w-6xl space-y-6">
+        <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#f1f5f9_100%)] px-6 py-12 text-slate-900">
+            <div className="mx-auto max-w-7xl space-y-8">
                 <header>
-                    <p className="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">
-                        Admin
-                    </p>
-                    <h1 className="mt-2 text-4xl font-semibold">Orders</h1>
+                    <h1 className="text-4xl font-semibold text-slate-950">Orders</h1>
                     <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
                         Track confirmed customer work after an approved quote becomes an
                         order.
@@ -278,7 +274,7 @@ export default function OrdersPage() {
                                 value={searchTerm}
                                 onChange={(event) => setSearchTerm(event.target.value)}
                                 placeholder="Search customer, email, order, quote, status, or notes"
-                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#10284a] focus:ring-4 focus:ring-[#10284a]/10"
                             />
                         </div>
 
@@ -298,7 +294,7 @@ export default function OrdersPage() {
                                         event.target.value as "all" | OrderStatus
                                     )
                                 }
-                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-[#10284a] focus:ring-4 focus:ring-[#10284a]/10"
                             >
                                 <option value="all">All statuses</option>
 
@@ -324,7 +320,7 @@ export default function OrdersPage() {
                                 onChange={(event) =>
                                     setSortOrder(event.target.value as "newest" | "oldest")
                                 }
-                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-[#10284a] focus:ring-4 focus:ring-[#10284a]/10"
                             >
                                 <option value="newest">Newest first</option>
                                 <option value="oldest">Oldest first</option>
@@ -396,7 +392,7 @@ export default function OrdersPage() {
                                             )
                                         }
                                         disabled={updatingOrderId === order.id}
-                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {statusOptions.map((status) => (
                                             <option key={status} value={status}>
@@ -461,12 +457,6 @@ export default function OrdersPage() {
                     })}
                 </section>
             </div>
-            <Link
-                href="/admin"
-                className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-                >
-                Back to Admin Hub
-            </Link>
         </main>
     );
 }

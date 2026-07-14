@@ -1,7 +1,6 @@
 "use client";
 
 import { useDeferredValue, useEffect, useState } from "react";
-import Link from "next/link";
 
 type Quote = {
     id: number;
@@ -275,14 +274,11 @@ export default function QuotesPage() {
     const hasActiveFilters = searchTerm.trim() !== "" || statusFilter !== "all";
 
     return (
-        <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] px-6 py-12 text-slate-900">
+        <main className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#f1f5f9_100%)] px-6 py-12 text-slate-900">
             <div className="mx-auto max-w-7xl space-y-8">
                 <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <p className="text-sm font-semibold tracking-[0.18em] text-amber-700 uppercase">
-                            Admin Dashboard
-                        </p>
-                        <h1 className="mt-2 text-4xl font-semibold text-slate-950">
+                        <h1 className="text-4xl font-semibold text-slate-950">
                             Quotations
                         </h1>
                         <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -364,7 +360,7 @@ export default function QuotesPage() {
                                 value={searchTerm}
                                 onChange={(event) => setSearchTerm(event.target.value)}
                                 placeholder="Search by quote, customer, enquiry, status, or notes"
-                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-500"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#10284a]"
                             />
                         </div>
 
@@ -381,7 +377,7 @@ export default function QuotesPage() {
                                 onChange={(event) =>
                                     setStatusFilter(event.target.value as "all" | Quote["status"])
                                 }
-                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a]"
                             >
                                 <option value="all">All statuses</option>
                                 {statusOptions.map((status) => (
@@ -411,7 +407,7 @@ export default function QuotesPage() {
                                             | "lowest"
                                     )
                                 }
-                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500"
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a]"
                             >
                                 <option value="newest">Newest first</option>
                                 <option value="oldest">Oldest first</option>
@@ -535,7 +531,7 @@ export default function QuotesPage() {
                                                             )
                                                         }
                                                         disabled={updatingQuoteId === quote.id}
-                                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+                                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a] disabled:cursor-not-allowed disabled:opacity-60"
                                                     >
                                                         {statusOptions.map((status) => (
                                                             <option key={status} value={status}>
@@ -595,12 +591,6 @@ export default function QuotesPage() {
                     )}
                 </section>
             </div>
-            <Link
-                href="/admin"
-                className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-                >
-                Back to Admin Hub
-            </Link>
         </main>
     );
 }
