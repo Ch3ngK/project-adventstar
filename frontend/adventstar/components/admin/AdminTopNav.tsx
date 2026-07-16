@@ -69,6 +69,7 @@ function LogoutIcon() {
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: GridIcon, exact: true },
   { label: "Enquiries", href: "/admin/enquiries", icon: InboxIcon },
+  { label: "Leads", href: "/admin/leads", icon: UsersIcon },
   { label: "Quotes", href: "/admin/quotes", icon: FileIcon },
   { label: "Orders", href: "/admin/orders", icon: PackageIcon },
   { label: "Customers", href: "/admin/customers", icon: UsersIcon },

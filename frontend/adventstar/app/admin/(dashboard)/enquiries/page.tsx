@@ -28,6 +28,16 @@ type QuoteDraftResponse = {
   created_at: string; 
 }
 
+type EmailDraftResponse = {
+  id: number;
+  kind: string; 
+  enquiry_id: number | null;
+  subject: string; 
+  body: string; 
+  open_questions: string[];
+  created_at: string; 
+}
+
 const statusOptions = ["new", "contacted", "quoted", "closed"] as const;
 
 const statusLabelMap: Record<(typeof statusOptions)[number], string> = {
@@ -68,6 +78,10 @@ export default function AdminEnquiriesPage() {
     const [loadingDraftsEnquiryId, setLoadingDraftsEnquiryId] = useState<number | null>(null); 
     const [quoteNotes, setQuoteNotes] = useState("");
     const [isCreatingQuote, setIsCreatingQuote] = useState(false);
+    const [generatingEmailDraftId, setGeneratingEmailDraftId] = useState<number | null>(null); 
+    const [emailDraftsByEnquiryId, setEmailDraftsByEnquiryId] = useState<Record<number, EmailDraftResponse[]>>({});
+    const [viewingEmailDraftsEnquiryId, setViewingEmailDraftsEnquiryId] = useState<number | null>(null);
+    const [loadingEmailDraftsEnquiryId, setLoadingEmailDraftsEnquiryId] = useState<number | null>(null); 
     const deferredSearchTerm = useDeferredValue(searchTerm); //Delayed version of searchTerm for better UI performance
 
     useEffect(() => {
@@ -268,6 +282,66 @@ export default function AdminEnquiriesPage() {
         }
     }
 
+    async function handleGenerateEmailDraft(enquiryId: number) {
+      try {
+        setGeneratingEmailDraftId(enquiryId);
+        setErrorMessage(""); 
+        const response = await fetch(`/api/admin/enquiries/${enquiryId}/draft-email`, {
+          method: "POST",
+        }); 
+
+        if (!response.ok) {
+          throw new Error("Failed to generate draft"); 
+        }
+
+        const newDraft: EmailDraftResponse = await response.json();
+
+        setEmailDraftsByEnquiryId((current) => ({
+          ...current, 
+          [enquiryId]: [newDraft, ...(current[enquiryId] ?? [])],
+        }));
+      } catch {
+        setErrorMessage("Unable to generate email draft."); 
+      } finally {
+        setGeneratingEmailDraftId(null);
+      }
+    }
+
+    async function handleToggleEmailDrafts(enquiryId: number) {
+      if (viewingEmailDraftsEnquiryId === enquiryId) {
+        setViewingEmailDraftsEnquiryId(null);
+        return; 
+      }
+
+      setViewingEmailDraftsEnquiryId(enquiryId);
+
+      if (emailDraftsByEnquiryId[enquiryId]) {
+        return;
+      }
+
+      try {
+        setLoadingEmailDraftsEnquiryId(enquiryId);
+        setErrorMessage("");
+
+        const response = await fetch(`/api/admin/enquiries/${enquiryId}/draft-email`);
+
+        if (!response.ok) {
+          throw new Error("Failed to load drafts"); 
+        }
+
+        const drafts: EmailDraftResponse[] = await response.json();
+
+        setEmailDraftsByEnquiryId((current) => ({
+          ...current, 
+          [enquiryId]: drafts,
+        }));
+      } catch {
+        setErrorMessage("Unable to load email drafts.");
+      } finally {
+        setLoadingEmailDraftsEnquiryId(null); 
+      }
+    }
+
     const normalizedSearchTerm = deferredSearchTerm.trim().toLowerCase(); // Prepares search text so matching is easier
 
     const visibleEnquiries = enquiries
@@ -452,6 +526,7 @@ export default function AdminEnquiriesPage() {
             visibleEnquiries.map((enquiry) => {
               const statusKey = enquiry.status as (typeof statusOptions)[number];
               const enquiryDrafts = draftsByEnquiryId[enquiry.id] ?? [];
+              const enquiryEmailDrafts = emailDraftsByEnquiryId[enquiry.id] ?? [];
 
               return (
                 <article
@@ -569,6 +644,25 @@ export default function AdminEnquiriesPage() {
                           : "View Drafts"
                         }
                       </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateEmailDraft(enquiry.id)}
+                        disabled={generatingEmailDraftId === enquiry.id}
+                        className="inline-flex items-center justify-center rounded-full border border-[#10284a]/25 bg-[#10284a]/5 px-4 py-2 text-sm font-semibold text-[#10284a] transition hover:bg-[#10284a]/10 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {generatingEmailDraftId === enquiry.id ? "Generating..." : "Generate Email Draft"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleToggleEmailDrafts(enquiry.id)}
+                        disabled={loadingEmailDraftsEnquiryId === enquiry.id}
+                        className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {loadingEmailDraftsEnquiryId === enquiry.id ? "Loading..." : viewingEmailDraftsEnquiryId === enquiry.id ? 
+                        "Hide Email Drafts" : "View Email Drafts"}
+                      </button>
                       </div>
                   </div>
 
@@ -615,6 +709,50 @@ export default function AdminEnquiriesPage() {
                             {draft.open_questions.length > 0 ? (
                               <div className="mt-3">
                                 <p className="text-xs font-semibold text-amber-800 uppercase">
+                                  Open Questions
+                                </p>
+                                <ul className="mt-1 list-disc pl-5 text-sm text-slate-700">
+                                  {draft.open_questions.map((question, index) => (
+                                    <li key={index}>{question}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  ) : null}
+
+                  {viewingEmailDraftsEnquiryId === enquiry.id ? (
+                    <div className="mt-5 space-y-4">
+                      {enquiryEmailDrafts.length === 0 ? (
+                        <p className="text-sm text-slate-500">
+                          {loadingEmailDraftsEnquiryId === enquiry.id
+                            ? "Loading drafts..."
+                            : "No email drafts yet. Generate one above."}
+                        </p>
+                      ) : (
+                        enquiryEmailDrafts.map((draft) => (
+                          <div
+                            key={draft.id}
+                            className="rounded-[1.5rem] border border-sky-200 bg-sky-50/60 p-5"
+                          >
+                            <p className="text-xs font-semibold tracking-[0.16em] text-sky-700 uppercase">
+                              Draft — {formatSubmittedAt(draft.created_at)}
+                            </p>
+
+                            <p className="mt-3 text-sm font-semibold text-slate-800">
+                              {draft.subject}
+                            </p>
+
+                            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
+                              {draft.body}
+                            </p>
+
+                            {draft.open_questions.length > 0 ? (
+                              <div className="mt-3">
+                                <p className="text-xs font-semibold text-sky-800 uppercase">
                                   Open Questions
                                 </p>
                                 <ul className="mt-1 list-disc pl-5 text-sm text-slate-700">
