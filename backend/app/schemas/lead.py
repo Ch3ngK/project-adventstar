@@ -20,3 +20,7 @@ class LeadResponse(BaseModel):
     phone: str | None = None
     notes: str
     created_at: datetime
+    status: str
+
+class LeadStatusUpdate(BaseModel):
+    status: str

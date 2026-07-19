@@ -5,7 +5,7 @@ from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.schemas.quote_draft import QuoteDraftItem, QuoteDraft, QuoteDraftResponse
 from app.schemas.email_draft import EmailDraft, EmailDraftResponse
-from app.schemas.lead import LeadCreate, LeadResponse
+from app.schemas.lead import LeadCreate, LeadResponse, LeadStatusUpdate
 
 __all__ = ["EnquiryCreate", 
            "EnquiryResponse", 
@@ -26,5 +26,7 @@ __all__ = ["EnquiryCreate",
            "EmailDraft",
            "EmailDraftResponse",
            "LeadCreate",
-           "LeadResponse"
+           "LeadResponse",
+           "LeadStatusUpdate"
            ]
+g

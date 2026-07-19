@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.rate_limit import limiter
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models import Lead, User, EmailDraftRecord
-from app.schemas import LeadCreate, LeadResponse, EmailDraftResponse, EmailDraft
+from app.schemas import LeadCreate, LeadResponse, EmailDraftResponse, EmailDraft, LeadStatusUpdate
 from app.services.email_agent import EmailDraftGenerationError, draft_outreach_email
 
 router = APIRouter(prefix="/leads", tags=["leads"])
@@ -109,3 +109,38 @@ def get_lead_email_drafts(
         .order_by(EmailDraftRecord.created_at.desc())
         .all()
     )
+
+@router.patch("/{lead_id}/status", response_model=LeadResponse)
+def update_lead_status(
+    lead_id: int, 
+    status_update: LeadStatusUpdate, 
+    _current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> Lead: 
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+
+    if lead is None: 
+        raise HTTPException(status_code=404, detail="Lead not found.")
+    
+    lead.status = status_update.status
+    db.commit()
+    db.refresh(lead)
+
+    return lead 
+
+@router.delete("/{lead_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_lead(
+    lead_id: int, 
+    _current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> Response: 
+    
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+
+    if lead is None: 
+        raise HTTPException(status_code=404, detail="Lead not found.")
+    
+    db.delete(lead)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

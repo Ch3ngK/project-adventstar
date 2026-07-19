@@ -13,4 +13,5 @@ class Lead(Base):
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
     notes = Column(Text, nullable=False)
+    status = Column(String, default="new", nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
