@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useState } from "react";
+import { buildMailtoHref } from "@/lib/mailto";
 
 type Enquiry = {
     id: number; 
@@ -81,7 +82,8 @@ export default function AdminEnquiriesPage() {
     const [generatingEmailDraftId, setGeneratingEmailDraftId] = useState<number | null>(null); 
     const [emailDraftsByEnquiryId, setEmailDraftsByEnquiryId] = useState<Record<number, EmailDraftResponse[]>>({});
     const [viewingEmailDraftsEnquiryId, setViewingEmailDraftsEnquiryId] = useState<number | null>(null);
-    const [loadingEmailDraftsEnquiryId, setLoadingEmailDraftsEnquiryId] = useState<number | null>(null); 
+    const [loadingEmailDraftsEnquiryId, setLoadingEmailDraftsEnquiryId] = useState<number | null>(null);
+    const [copiedEmailDraftId, setCopiedEmailDraftId] = useState<number | null>(null);
     const deferredSearchTerm = useDeferredValue(searchTerm); //Delayed version of searchTerm for better UI performance
 
     useEffect(() => {
@@ -339,6 +341,16 @@ export default function AdminEnquiriesPage() {
         setErrorMessage("Unable to load email drafts.");
       } finally {
         setLoadingEmailDraftsEnquiryId(null); 
+      }
+    }
+
+    async function handleCopyEmailDraft(draft: EmailDraftResponse) {
+      try {
+        await navigator.clipboard.writeText(`${draft.subject}\n\n${draft.body}`);
+        setCopiedEmailDraftId(draft.id);
+        setTimeout(() => setCopiedEmailDraftId((current) => (current === draft.id ? null : current)), 2000);
+      } catch {
+        setErrorMessage("Unable to copy draft to clipboard.");
       }
     }
 
@@ -762,6 +774,22 @@ export default function AdminEnquiriesPage() {
                                 </ul>
                               </div>
                             ) : null}
+
+                            <div className="mt-4 flex flex-wrap gap-3">
+                              <a
+                                href={buildMailtoHref(enquiry.email, draft.subject, draft.body)}
+                                className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-white px-4 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-50"
+                              >
+                                Open in Email
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyEmailDraft(draft)}
+                                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                              >
+                                {copiedEmailDraftId === draft.id ? "Copied!" : "Copy"}
+                              </button>
+                            </div>
                           </div>
                         ))
                       )}

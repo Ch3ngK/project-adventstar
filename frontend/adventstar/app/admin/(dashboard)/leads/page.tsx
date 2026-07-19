@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { buildMailtoHref } from "@/lib/mailto";
 
 type Lead = {
     id: number;
@@ -47,6 +48,7 @@ export default function AdminLeadsPage() {
     const [emailDraftsByLeadId, setEmailDraftsByLeadId] = useState<Record<number, EmailDraftResponse[]>>({});
     const [viewingEmailDraftsLeadId, setViewingEmailDraftsLeadId] = useState<number | null>(null);
     const [loadingEmailDraftsLeadId, setLoadingEmailDraftsLeadId] = useState<number | null>(null);
+    const [copiedEmailDraftId, setCopiedEmailDraftId] = useState<number | null>(null);
 
     useEffect(() => {
         async function loadLeads() {
@@ -161,6 +163,16 @@ export default function AdminLeadsPage() {
             setErrorMessage("Unable to load email drafts.");
         } finally {
             setLoadingEmailDraftsLeadId(null);
+        }
+    }
+
+    async function handleCopyEmailDraft(draft: EmailDraftResponse) {
+        try {
+            await navigator.clipboard.writeText(`${draft.subject}\n\n${draft.body}`);
+            setCopiedEmailDraftId(draft.id);
+            setTimeout(() => setCopiedEmailDraftId((current) => (current === draft.id ? null : current)), 2000);
+        } catch {
+            setErrorMessage("Unable to copy draft to clipboard.");
         }
     }
 
@@ -407,6 +419,22 @@ export default function AdminLeadsPage() {
                                                                 </ul>
                                                             </div>
                                                         ) : null}
+
+                                                        <div className="mt-4 flex flex-wrap gap-3">
+                                                            <a
+                                                                href={buildMailtoHref(lead.email, draft.subject, draft.body)}
+                                                                className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-white px-4 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-50"
+                                                            >
+                                                                Open in Email
+                                                            </a>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleCopyEmailDraft(draft)}
+                                                                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                                            >
+                                                                {copiedEmailDraftId === draft.id ? "Copied!" : "Copy"}
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 ))
                                             )}

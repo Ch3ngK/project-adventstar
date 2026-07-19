@@ -221,7 +221,6 @@ def create_email_draft(
     return draft_record
 
 @router.get("/{enquiry_id}/draft-email", response_model=list[EmailDraftResponse])
-@limiter.limit("5/minute")
 def get_email_drafts(
     enquiry_id: int,
     request: Request,

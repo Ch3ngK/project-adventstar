@@ -7,6 +7,7 @@ from app.api.routes.enquiries import router as enquiries_router
 from app.api.routes.quotes import router as quotes_router
 from app.api.routes.orders import router as orders_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.leads import router as leads_router
 from app.core.config import settings
 from app.db.session import engine
 from app.models import Enquiry  # noqa: F401
@@ -47,6 +48,7 @@ def create_application() -> FastAPI:
     app.include_router(quotes_router)
     app.include_router(orders_router)
     app.include_router(auth_router)
+    app.include_router(leads_router)
 
     return app
 
