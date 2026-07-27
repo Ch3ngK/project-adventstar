@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import adventstarLogo from '@/public/adventstar-logo.png'
 
 const navLinks = [
   { label: 'Services', href: '#services' },
   { label: 'Process', href: '#process' },
+  { label: 'FAQ', href: '/faq' },
   { label: 'Contact', href: '#contact' },
 ]
 
@@ -21,7 +23,7 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-50"
+      className="fixed inset-x-0 top-0 z-50"
       style={{
         background: scrolled ? 'rgba(255,255,255,0.96)' : 'transparent',
         borderBottom: scrolled ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)',
@@ -32,16 +34,15 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 lg:px-10">
         <a href="#top" className="flex min-w-0 items-center">
           <Image
-            src="/adventstar-logo.png"
+            src={adventstarLogo}
             alt="Advent Star Uniform Supplier"
-            width={1057}
-            height={719}
+            placeholder="blur"
             className="h-auto w-[10.5rem] sm:w-[12rem]"
             style={{
               filter: scrolled ? 'none' : 'brightness(0) invert(1)',
               transition: 'filter 0.35s ease',
             }}
-            priority
+            preload
           />
         </a>
 

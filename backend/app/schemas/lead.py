@@ -15,8 +15,8 @@ class LeadResponse(BaseModel):
 
     id: int
     contact_name: str
-    company_name: str
-    email: str
+    company_name: str | None = None 
+    email: str | None = None 
     phone: str | None = None
     notes: str
     created_at: datetime

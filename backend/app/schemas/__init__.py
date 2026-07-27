@@ -6,6 +6,11 @@ from app.schemas.auth import LoginRequest, TokenResponse
 from app.schemas.quote_draft import QuoteDraftItem, QuoteDraft, QuoteDraftResponse
 from app.schemas.email_draft import EmailDraft, EmailDraftResponse
 from app.schemas.lead import LeadCreate, LeadResponse, LeadStatusUpdate
+from app.schemas.conversation import ConversationSummary
+from app.schemas.message import MessageResponse, MessageSendRequest 
+from app.schemas.whatsapp_agent import WhatsAppAgentResult 
+from app.schemas.catalog_item import CatalogItemCreate, CatalogItemUpdate, CatalogItemResponse
+from app.schemas.chat import ChatSessionResponse, ChatMessageResponse, ChatMessageSendRequest, ChatSendResponse
 
 __all__ = ["EnquiryCreate", 
            "EnquiryResponse", 
@@ -27,6 +32,16 @@ __all__ = ["EnquiryCreate",
            "EmailDraftResponse",
            "LeadCreate",
            "LeadResponse",
-           "LeadStatusUpdate"
+           "LeadStatusUpdate",
+           "ConversationSummary",
+           "MessageResponse",
+           "MessageSendRequest",
+           "WhatsAppAgentResult",
+           "CatalogItemCreate",
+           "CatalogItemUpdate",
+           "CatalogItemResponse",
+           "ChatSessionResponse", 
+           "ChatMessageResponse", 
+           "ChatMessageSendRequest", 
+           "ChatSendResponse"
            ]
-g

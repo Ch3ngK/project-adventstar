@@ -47,6 +47,7 @@ Run this command on the terminal:
 
 # To run virtual environment:
 1) MacOS
+source .venv/bin/activate
 
 uvicorn app.main:app --reload --port 8000
 

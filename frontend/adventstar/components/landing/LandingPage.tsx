@@ -189,6 +189,7 @@ const footerLinks = [
   { label: "Home", href: "#top" },
   { label: "Services", href: "#services" },
   { label: "Process", href: "#process" },
+  { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "#contact" },
   { label: "Request a Quote", href: "/enquiry" },
 ]
@@ -247,7 +248,7 @@ export default function LandingPage() {
       <Header />
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative flex min-h-[calc(100svh-73px)] flex-col overflow-hidden bg-[#0d1f3c]">
+      <section className="relative flex min-h-svh flex-col overflow-hidden bg-[#0d1f3c]">
         {/* Background video */}
         <video
           autoPlay
@@ -289,7 +290,7 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-7xl flex-1 flex flex-col justify-center px-6 py-20 lg:px-10">
+        <div className="relative mx-auto w-full max-w-7xl flex-1 flex flex-col justify-center px-6 pt-40 pb-20 lg:px-10">
           {/* Badge */}
           <div
             className="mb-10 inline-flex w-fit items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-xs font-semibold tracking-[0.18em] text-slate-300 uppercase"

@@ -104,6 +104,7 @@ function MailIcon() {
 const footerLinks = [
   { label: "Home", href: "/" },
   { label: "About Advent Star", href: "/about" },
+  { label: "FAQ", href: "/faq" },
   { label: "Request a Quote", href: "/enquiry" },
 ];
 

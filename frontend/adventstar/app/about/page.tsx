@@ -115,6 +115,7 @@ const footerLinks = [
     { label: "Home", href: "#top" },
     { label: "Why Advent Star", href: "#why-adventstar" },
     { label: "What We Supply", href: "#what-we-supply" },
+    { label: "FAQ", href: "/faq" },
     { label: "Request a Quote", href: "#enquiry" },
   ];
 

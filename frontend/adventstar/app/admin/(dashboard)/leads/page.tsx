@@ -6,10 +6,11 @@ import { buildMailtoHref } from "@/lib/mailto";
 type Lead = {
     id: number;
     contact_name: string;
-    company_name: string;
-    email: string;
+    company_name: string | null;
+    email: string | null;
     phone: string | null;
     notes: string;
+    status: string; 
     created_at: string;
 }
 
@@ -49,6 +50,25 @@ export default function AdminLeadsPage() {
     const [viewingEmailDraftsLeadId, setViewingEmailDraftsLeadId] = useState<number | null>(null);
     const [loadingEmailDraftsLeadId, setLoadingEmailDraftsLeadId] = useState<number | null>(null);
     const [copiedEmailDraftId, setCopiedEmailDraftId] = useState<number | null>(null);
+
+    const statusOptions = ["new", "contacted", "converted", "dead"] as const; 
+
+    const statusLabelMap: Record<(typeof statusOptions)[number], string> = {
+        new: "New", 
+        contacted: "Contacted",
+        converted: "Converted",
+        dead: "Dead",
+    };
+
+    const statusBadgeClasses: Record<(typeof statusOptions)[number], string> = {
+        new: "border-amber-200 bg-amber-50 text-amber-800",
+        contacted: "border-sky-200 bg-sky-50 text-sky-800",
+        converted: "border-emerald-200 bg-emerald-50 text-emerald-800",
+        dead: "border-slate-200 bg-slate-100 text-slate-500",
+    }
+
+    const [updatingLeadId, setUpdatingLeadId] = useState<number | null>(null); 
+    const [deletingLeadId, setDeletingLeadId] = useState<number | null>(null); 
 
     useEffect(() => {
         async function loadLeads() {
@@ -173,6 +193,56 @@ export default function AdminLeadsPage() {
             setTimeout(() => setCopiedEmailDraftId((current) => (current === draft.id ? null : current)), 2000);
         } catch {
             setErrorMessage("Unable to copy draft to clipboard.");
+        }
+    }
+
+    async function handleStatusChange(leadId: number, newStatus: string) {
+        try {
+            setUpdatingLeadId(leadId);
+            setErrorMessage(""); 
+            const response = await fetch(`/api/admin/leads/${leadId}/status`, {
+                method: "PATCH", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            }); 
+
+            if (!response.ok) {
+                throw new Error("Failed to update lead status.")
+            }
+
+            const updatedLead = await response.json()
+            setLeads((currentLeads) => 
+                currentLeads.map((lead) => (lead.id === leadId ? updatedLead : lead)));
+        } catch {
+            setErrorMessage("Unable to update lead status"); 
+        } finally {
+            setUpdatingLeadId(null);
+        }
+    }
+
+    async function handleDeleteLead(leadId: number) {
+        const confirmed = window.confirm("Delete this lead? This action cannot be undone.");
+
+        if (!confirmed) {
+            return; 
+        }
+
+        try {
+            setDeletingLeadId(leadId);
+            setErrorMessage("");
+            const response = await fetch(`/api/admin/leads/${leadId}`, {
+                method: "DELETE"
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to delete lead."); 
+            }
+
+            setLeads((currentLeads) => currentLeads.filter((lead) => lead.id !== leadId))
+        } catch {
+            setErrorMessage("Failed to delete lead."); 
+        } finally {
+            setDeletingLeadId(null);
         }
     }
 
@@ -336,10 +406,10 @@ export default function AdminLeadsPage() {
                                                 {lead.contact_name}
                                             </h2>
                                             <p className="mt-1 text-sm font-medium text-slate-600">
-                                                {lead.company_name}
+                                                {lead.company_name ?? "-"}
                                             </p>
                                             <p className="mt-1 text-sm text-slate-500">
-                                                {lead.email}
+                                                {lead.email ?? "-"}
                                                 {lead.phone ? ` · ${lead.phone}` : ""}
                                             </p>
                                             <p className="mt-1 text-xs text-slate-400">
@@ -348,6 +418,21 @@ export default function AdminLeadsPage() {
                                         </div>
 
                                         <div className="flex flex-wrap items-center gap-3">
+                                            <select
+                                                id={`status-${lead.id}`}
+                                                value={lead.status}
+                                                onChange={(event) =>
+                                                    handleStatusChange(lead.id, event.target.value)}
+                                                disabled={updatingLeadId === lead.id}
+                                                className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 outline-none focus:border-[#10284a] disabled:cursor-not-allowed disabled:opacity-60"
+                                            >
+                                                {statusOptions.map((status) => (
+                                                    <option key={status} value={status}>
+                                                    {statusLabelMap[status]}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            
                                             <button
                                                 type="button"
                                                 onClick={() => handleGenerateEmailDraft(lead.id)}
@@ -368,6 +453,14 @@ export default function AdminLeadsPage() {
                                                     : viewingEmailDraftsLeadId === lead.id
                                                     ? "Hide Drafts"
                                                     : "View Drafts"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteLead(lead.id)}
+                                                disabled={deletingLeadId === lead.id}
+                                                className="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                            >
+                                                {deletingLeadId === lead.id ? "Deleting..." : "Delete"}
                                             </button>
                                         </div>
                                     </div>
@@ -421,12 +514,14 @@ export default function AdminLeadsPage() {
                                                         ) : null}
 
                                                         <div className="mt-4 flex flex-wrap gap-3">
-                                                            <a
-                                                                href={buildMailtoHref(lead.email, draft.subject, draft.body)}
-                                                                className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-white px-4 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-50"
-                                                            >
-                                                                Open in Email
-                                                            </a>
+                                                            {lead.email ? (
+                                                                <a
+                                                                    href={buildMailtoHref(lead.email, draft.subject, draft.body)}
+                                                                    className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-white px-4 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-50"
+                                                                >
+                                                                    Open in Email
+                                                                </a>
+                                                            ): null}
                                                             <button
                                                                 type="button"
                                                                 onClick={() => handleCopyEmailDraft(draft)}

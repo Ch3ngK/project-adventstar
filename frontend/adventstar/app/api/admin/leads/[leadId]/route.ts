@@ -49,3 +49,33 @@ export async function GET(request: Request, context: RouteContext) {
         status: backendResponse.status,
     })
 }
+
+export async function DELETE(request: Request, context: RouteContext) {
+    const cookiestore = await cookies()
+    const token = cookiestore.get("adventstar_token")?.value 
+
+    if (!token) {
+        return NextResponse.json(
+            { message : "Not authenticated." },
+            { status: 401 }
+        );
+    }
+
+    const { leadId } = await context.params;
+    const backendResponse = await fetch(apiUrl(`/leads/${leadId}`), {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (backendResponse.status === 204) {
+        return new Response(null, { status: 204 });
+    }
+
+    const data = await backendResponse.json();
+
+    return NextResponse.json(data, {
+        status: backendResponse.status, 
+    });
+}   

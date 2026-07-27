@@ -8,6 +8,10 @@ from app.api.routes.quotes import router as quotes_router
 from app.api.routes.orders import router as orders_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.leads import router as leads_router
+from app.api.routes.whatsapp import router as whatsapp_router
+from app.api.routes.conversations import router as conversations_router 
+from app.api.routes.catalog import router as catalog_router
+from app.api.routes.chat import router as chat_router
 from app.core.config import settings
 from app.db.session import engine
 from app.models import Enquiry  # noqa: F401
@@ -48,7 +52,11 @@ def create_application() -> FastAPI:
     app.include_router(quotes_router)
     app.include_router(orders_router)
     app.include_router(auth_router)
+    app.include_router(whatsapp_router)
     app.include_router(leads_router)
+    app.include_router(conversations_router)
+    app.include_router(catalog_router)
+    app.include_router(chat_router)
 
     return app
 

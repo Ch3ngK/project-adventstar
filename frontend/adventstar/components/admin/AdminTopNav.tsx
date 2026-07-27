@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import adventstarLogo from "@/public/adventstar-logo.png";
 
 function GridIcon() {
   return (
@@ -25,6 +26,14 @@ function InboxIcon() {
   );
 }
 
+function ChatIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 12c0-4.42 3.8-8 8.5-8s8.5 3.58 8.5 8-3.8 8-8.5 8c-1.02 0-2-.17-2.9-.48L4.5 20.5l1.1-3.6A7.6 7.6 0 0 1 3.5 12Z" />
+      <path d="M8.5 11.75h7M8.5 14.75h4.5" />
+    </svg>
+  );
+}
 function FileIcon() {
   return (
     <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -66,11 +75,22 @@ function LogoutIcon() {
   );
 }
 
+function TagIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12.75 3.5h5.75a1.5 1.5 0 0 1 1.5 1.5v5.75a1.5 1.5 0 0 1-.44 1.06l-8.25 8.25a1.5 1.5 0 0 1-2.12 0l-5.75-5.75a1.5 1.5 0 0 1 0-2.12l8.25-8.25a1.5 1.5 0 0 1 1.06-.44Z" />
+      <circle cx="16.5" cy="7.5" r="1.25" />
+    </svg>
+  );
+}
+
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: GridIcon, exact: true },
   { label: "Enquiries", href: "/admin/enquiries", icon: InboxIcon },
+  { label: "Inbox", href: "/admin/conversations", icon: ChatIcon },
   { label: "Leads", href: "/admin/leads", icon: UsersIcon },
   { label: "Quotes", href: "/admin/quotes", icon: FileIcon },
+  { label: "Price List", href: "/admin/catalog", icon: TagIcon },
   { label: "Orders", href: "/admin/orders", icon: PackageIcon },
   { label: "Customers", href: "/admin/customers", icon: UsersIcon },
 ];
@@ -95,12 +115,11 @@ export default function AdminTopNav() {
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-3 lg:px-10">
         <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
           <Image
-            src="/adventstar-logo.png"
+            src={adventstarLogo}
             alt="Advent Star"
-            width={1057}
-            height={719}
+            placeholder="blur"
             className="h-auto w-[7.5rem]"
-            priority
+            preload
           />
           <span className="hidden rounded-full bg-[#10284a]/10 px-2.5 py-1 text-[0.65rem] font-bold tracking-[0.16em] text-[#10284a] uppercase sm:inline-block">
             Admin
