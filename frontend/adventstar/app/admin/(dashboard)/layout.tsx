@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import AdminTopNav from "@/components/admin/AdminTopNav";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default async function AdminDashboardLayout({
   children,
@@ -16,8 +16,8 @@ export default async function AdminDashboardLayout({
 
   return (
     <>
-      <AdminTopNav />
-      {children}
+      <AdminSidebar />
+      <div className="lg:pl-64">{children}</div>
     </>
   );
 }

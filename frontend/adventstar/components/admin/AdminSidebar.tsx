@@ -84,6 +84,14 @@ function TagIcon() {
   );
 }
 
+function SparkleIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3.5 13.6 9.4 19.5 11 13.6 12.6 12 18.5 10.4 12.6 4.5 11 10.4 9.4 12 3.5Z" />
+    </svg>
+  );
+}
+
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: GridIcon, exact: true },
   { label: "Enquiries", href: "/admin/enquiries", icon: InboxIcon },
@@ -93,9 +101,10 @@ const navItems = [
   { label: "Price List", href: "/admin/catalog", icon: TagIcon },
   { label: "Orders", href: "/admin/orders", icon: PackageIcon },
   { label: "Customers", href: "/admin/customers", icon: UsersIcon },
+  { label: "Assistant", href: "/admin/assistant", icon: SparkleIcon },
 ];
 
-export default function AdminTopNav() {
+export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -111,9 +120,9 @@ export default function AdminTopNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-3 lg:px-10">
-        <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
+    <>
+      <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-slate-200 bg-white/95 px-4 py-6 backdrop-blur-xl lg:flex">
+        <Link href="/admin" className="flex items-center gap-2.5 px-2">
           <Image
             src={adventstarLogo}
             alt="Advent Star"
@@ -121,15 +130,12 @@ export default function AdminTopNav() {
             className="h-auto w-[7.5rem]"
             preload
           />
-          <span className="hidden rounded-full bg-[#10284a]/10 px-2.5 py-1 text-[0.65rem] font-bold tracking-[0.16em] text-[#10284a] uppercase sm:inline-block">
-            Admin
-          </span>
         </Link>
+        <span className="mx-2 mt-3 w-fit rounded-full bg-[#10284a]/10 px-2.5 py-1 text-[0.65rem] font-bold tracking-[0.16em] text-[#10284a] uppercase">
+          Admin
+        </span>
 
-        <nav
-          aria-label="Admin sections"
-          className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
-        >
+        <nav aria-label="Admin sections" className="mt-8 flex flex-1 flex-col gap-1 overflow-y-auto">
           {navItems.map(({ label, href, icon: Icon, exact }) => {
             const isActive = exact ? pathname === href : pathname.startsWith(href);
 
@@ -138,7 +144,7 @@ export default function AdminTopNav() {
                 key={href}
                 href={href}
                 aria-current={isActive ? "page" : undefined}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors ${
                   isActive
                     ? "bg-[#10284a] text-white"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -155,12 +161,61 @@ export default function AdminTopNav() {
           type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <LogoutIcon />
-          <span className="hidden sm:inline">{isLoggingOut ? "Logging out..." : "Log out"}</span>
+          {isLoggingOut ? "Logging out..." : "Log out"}
         </button>
-      </div>
-    </header>
+      </aside>
+
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
+            <Image
+              src={adventstarLogo}
+              alt="Advent Star"
+              placeholder="blur"
+              className="h-auto w-[6rem]"
+              preload
+            />
+          </Link>
+
+          <nav
+            aria-label="Admin sections"
+            className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+          >
+            {navItems.map(({ label, href, icon: Icon, exact }) => {
+              const isActive = exact ? pathname === href : pathname.startsWith(href);
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${
+                    isActive
+                      ? "bg-[#10284a] text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon />
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            aria-label="Log out"
+            className="inline-flex shrink-0 items-center justify-center rounded-full border border-slate-300 p-2.5 text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <LogoutIcon />
+          </button>
+        </div>
+      </header>
+    </>
   );
 }
